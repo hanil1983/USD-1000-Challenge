@@ -14,7 +14,7 @@ from plotly.subplots import make_subplots
 # ============================================================
 
 st.set_page_config(
-    page_title="V Trading",
+    page_title="Next Candle Quiz",
     page_icon="📈",
     layout="centered",
     initial_sidebar_state="collapsed",
@@ -710,7 +710,7 @@ for key, value in defaults.items():
 # ============================================================
 
 st.markdown(
-    "### 📈 Next Candle Quiz"
+    "### 📈 V-Trading"
 )
 
 
