@@ -70,8 +70,9 @@ st.markdown(
         flex: 1 1 0 !important;
     }
 
+    /* Metric */
     div[data-testid="stMetric"] {
-        background: rgba(120, 120, 120, 0.07);
+        background: rgba(120,120,120,0.07);
         padding: 3px 4px !important;
         border-radius: 8px;
         text-align: center;
@@ -93,21 +94,24 @@ st.markdown(
         font-size: 0.65rem !important;
     }
 
+    /* 일반 버튼 */
     .stButton > button {
         min-height: 38px !important;
         height: 38px !important;
         font-size: 0.90rem !important;
         font-weight: 700 !important;
         border-radius: 8px !important;
-        padding: 0.05rem 0.2rem !important;
+        padding: 0.05rem 0.20rem !important;
     }
 
+    /* 선택된 봉 */
     .st-key-zoom_selected button {
         background-color: #111111 !important;
         color: white !important;
         border-color: #111111 !important;
     }
 
+    /* 상승 버튼 */
     .st-key-up_area button {
         background-color: #16a34a !important;
         color: white !important;
@@ -119,6 +123,7 @@ st.markdown(
         border-color: #15803d !important;
     }
 
+    /* 하락 버튼 */
     .st-key-down_area button {
         background-color: #dc2626 !important;
         color: white !important;
@@ -236,7 +241,9 @@ def download_data(symbol, timeframe):
         unit="ms",
     )
 
-    df = df.set_index("OpenTime")
+    df = df.set_index(
+        "OpenTime"
+    )
 
     df = df[
         [
@@ -261,7 +268,9 @@ def choose_question_index(df):
     maximum = len(df) - 2
 
     if maximum <= minimum:
-        raise ValueError("데이터가 부족합니다.")
+        raise ValueError(
+            "데이터가 부족합니다."
+        )
 
     return random.randint(
         minimum,
@@ -281,17 +290,46 @@ def new_question(df):
 
 def get_question_data(df):
 
-    index = st.session_state.question_index
+    index = (
+        st.session_state.question_index
+    )
 
     past = df.iloc[
         index - LOOKBACK:index
     ].copy()
 
-    next_candle = df.iloc[
-        index
-    ].copy()
+    next_candle = (
+        df.iloc[index].copy()
+    )
 
     return past, next_candle
+
+
+# ============================================================
+# 공통 차트 잠금 설정
+# ============================================================
+
+def lock_chart(fig):
+
+    # 모든 X축 잠금
+    fig.update_xaxes(
+        fixedrange=True,
+        showgrid=False,
+    )
+
+    # 모든 Y축 잠금
+    fig.update_yaxes(
+        fixedrange=True,
+        gridcolor="rgba(128,128,128,0.18)",
+        zeroline=False,
+    )
+
+    fig.update_layout(
+        dragmode=False,
+        hovermode="x unified",
+    )
+
+    return fig
 
 
 # ============================================================
@@ -321,6 +359,10 @@ def make_quiz_chart(
         ],
     )
 
+    # ========================================================
+    # 캔들
+    # ========================================================
+
     fig.add_trace(
         go.Candlestick(
             x=x,
@@ -328,6 +370,7 @@ def make_quiz_chart(
             high=past["High"],
             low=past["Low"],
             close=past["Close"],
+
             name="Price",
 
             increasing_line_color="#26a69a",
@@ -339,6 +382,11 @@ def make_quiz_chart(
         row=1,
         col=1,
     )
+
+
+    # ========================================================
+    # 거래량
+    # ========================================================
 
     volume_colors = np.where(
         past["Close"] >= past["Open"],
@@ -356,6 +404,11 @@ def make_quiz_chart(
         row=2,
         col=1,
     )
+
+
+    # ========================================================
+    # 표시 범위
+    # ========================================================
 
     start_visible = (
         len(past)
@@ -375,6 +428,11 @@ def make_quiz_chart(
         ]
     )
 
+
+    # ========================================================
+    # Layout
+    # ========================================================
+
     fig.update_layout(
         height=390,
 
@@ -389,22 +447,11 @@ def make_quiz_chart(
 
         showlegend=False,
 
-        dragmode="pan",
-
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
     )
 
-    fig.update_xaxes(
-        showgrid=False,
-    )
-
-    fig.update_yaxes(
-        gridcolor="rgba(128,128,128,0.18)",
-        zeroline=False,
-    )
-
-    return fig
+    return lock_chart(fig)
 
 
 # ============================================================
@@ -446,6 +493,11 @@ def make_result_chart(
         ],
     )
 
+
+    # ========================================================
+    # 가격
+    # ========================================================
+
     fig.add_trace(
         go.Candlestick(
             x=x,
@@ -464,6 +516,11 @@ def make_result_chart(
         col=1,
     )
 
+
+    # ========================================================
+    # 거래량
+    # ========================================================
+
     volume_colors = np.where(
         combined["Close"] >= combined["Open"],
         "#26a69a",
@@ -480,6 +537,11 @@ def make_result_chart(
         col=1,
     )
 
+
+    # ========================================================
+    # 공개된 다음 봉 표시
+    # ========================================================
+
     fig.add_vrect(
         x0=len(past) + 0.5,
         x1=len(past) + 1.5,
@@ -488,6 +550,11 @@ def make_result_chart(
         row=1,
         col=1,
     )
+
+
+    # ========================================================
+    # 표시 범위
+    # ========================================================
 
     result_visible = min(
         visible_bars,
@@ -512,6 +579,11 @@ def make_result_chart(
         ]
     )
 
+
+    # ========================================================
+    # Layout
+    # ========================================================
+
     fig.update_layout(
         height=330,
 
@@ -526,22 +598,11 @@ def make_result_chart(
 
         showlegend=False,
 
-        dragmode="pan",
-
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
     )
 
-    fig.update_xaxes(
-        showgrid=False,
-    )
-
-    fig.update_yaxes(
-        gridcolor="rgba(128,128,128,0.18)",
-        zeroline=False,
-    )
-
-    return fig
+    return lock_chart(fig)
 
 
 # ============================================================
@@ -606,10 +667,11 @@ for key, value in defaults.items():
 
 
 # ============================================================
-# 종목 / 시간봉
+# 코인 / 시간봉
 # ============================================================
 
 top1, top2 = st.columns(2)
+
 
 with top1:
 
@@ -648,10 +710,8 @@ if st.session_state.total > 0:
 
     accuracy = (
         st.session_state.correct
-        /
-        st.session_state.total
-        *
-        100
+        / st.session_state.total
+        * 100
     )
 
 else:
@@ -663,6 +723,7 @@ score1, score2, score3 = st.columns(3)
 
 
 with score1:
+
     st.metric(
         "문제",
         st.session_state.total,
@@ -670,6 +731,7 @@ with score1:
 
 
 with score2:
+
     st.metric(
         "정답",
         st.session_state.correct,
@@ -677,6 +739,7 @@ with score2:
 
 
 with score3:
+
     st.metric(
         "정답률",
         f"{accuracy:.0f}%",
@@ -684,7 +747,7 @@ with score3:
 
 
 # ============================================================
-# 봉 선택
+# 25 / 50 / 100봉
 # ============================================================
 
 zoom1, zoom2, zoom3 = st.columns(3)
@@ -698,12 +761,11 @@ with zoom1:
             key="zoom_selected"
         ):
 
-            if st.button(
+            st.button(
                 "25봉",
                 use_container_width=True,
                 key="zoom25_selected",
-            ):
-                pass
+            )
 
     else:
 
@@ -714,6 +776,7 @@ with zoom1:
         ):
 
             st.session_state.visible_bars = 25
+
             st.rerun()
 
 
@@ -725,12 +788,11 @@ with zoom2:
             key="zoom_selected"
         ):
 
-            if st.button(
+            st.button(
                 "50봉",
                 use_container_width=True,
                 key="zoom50_selected",
-            ):
-                pass
+            )
 
     else:
 
@@ -741,6 +803,7 @@ with zoom2:
         ):
 
             st.session_state.visible_bars = 50
+
             st.rerun()
 
 
@@ -752,12 +815,11 @@ with zoom3:
             key="zoom_selected"
         ):
 
-            if st.button(
+            st.button(
                 "100봉",
                 use_container_width=True,
                 key="zoom100_selected",
-            ):
-                pass
+            )
 
     else:
 
@@ -768,6 +830,7 @@ with zoom3:
         ):
 
             st.session_state.visible_bars = 100
+
             st.rerun()
 
 
@@ -801,7 +864,7 @@ if len(df) < LOOKBACK + 10:
 
 
 # ============================================================
-# 종목 / 시간봉 변경
+# 설정 변경
 # ============================================================
 
 signature = (
@@ -856,16 +919,25 @@ if not st.session_state.revealed:
             past,
             st.session_state.visible_bars,
         ),
+
         use_container_width=True,
+
         config={
             "displayModeBar": False,
+
+            # 스크롤/줌 비활성화
+            "scrollZoom": False,
+
+            # Plotly 기본 인터랙션 제거
+            "staticPlot": True,
+
             "responsive": True,
         },
     )
 
 
     # ========================================================
-    # 현재 가격 + 직전 봉 등락률
+    # 현재가격 / 직전 봉
     # ========================================================
 
     last_close = float(
@@ -887,12 +959,7 @@ if not st.session_state.revealed:
     ) * 100
 
 
-    price_left, price_right = st.columns(
-        [
-            1,
-            1,
-        ]
-    )
+    price_left, price_right = st.columns(2)
 
 
     with price_left:
@@ -931,6 +998,7 @@ if not st.session_state.revealed:
             ):
 
                 st.session_state.choice = "UP"
+
                 st.session_state.revealed = True
 
                 st.rerun()
@@ -949,6 +1017,7 @@ if not st.session_state.revealed:
             ):
 
                 st.session_state.choice = "DOWN"
+
                 st.session_state.revealed = True
 
                 st.rerun()
@@ -990,6 +1059,10 @@ else:
                 st.session_state.correct += 1
 
 
+    # ========================================================
+    # 결과 표시
+    # ========================================================
+
     if result["answer"] == "DOJI":
 
         st.warning(
@@ -1011,15 +1084,23 @@ else:
         )
 
 
+    # ========================================================
+    # 결과 차트도 완전 고정
+    # ========================================================
+
     st.plotly_chart(
         make_result_chart(
             past,
             next_candle,
             st.session_state.visible_bars,
         ),
+
         use_container_width=True,
+
         config={
             "displayModeBar": False,
+            "scrollZoom": False,
+            "staticPlot": True,
             "responsive": True,
         },
     )
@@ -1094,6 +1175,7 @@ if st.button(
 ):
 
     st.session_state.total = 0
+
     st.session_state.correct = 0
 
     st.rerun()
