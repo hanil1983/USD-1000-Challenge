@@ -1,9 +1,11 @@
 import random
+
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import requests
 import streamlit as st
+
 from plotly.subplots import make_subplots
 
 
@@ -22,44 +24,101 @@ LOOKBACK = 100
 
 
 # ============================================================
-# 모바일 UI
+# 모바일 UI 최적화
 # ============================================================
 
 st.markdown(
     """
     <style>
 
+    /* 전체 화면 */
     .block-container {
         max-width: 700px;
-        padding-top: 0.25rem;
-        padding-left: 0.45rem;
-        padding-right: 0.45rem;
+        padding-top: 0.2rem;
+        padding-left: 0.4rem;
+        padding-right: 0.4rem;
         padding-bottom: 0.5rem;
     }
 
+    /* 제목 */
     h1 {
-        font-size: 1.4rem !important;
+        font-size: 1.35rem !important;
         text-align: center;
-        margin-top: 0rem !important;
-        margin-bottom: 0rem !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
     }
 
-    h3 {
-        margin-top: 0.3rem !important;
-        margin-bottom: 0.2rem !important;
+    /* Streamlit 세로 여백 축소 */
+    div[data-testid="stVerticalBlock"] {
+        gap: 0.3rem !important;
     }
 
+    /* =====================================================
+       핵심:
+       아이폰에서도 st.columns가 세로로 쌓이지 않도록 고정
+       ===================================================== */
+
+    div[data-testid="stHorizontalBlock"] {
+        flex-wrap: nowrap !important;
+        gap: 0.35rem !important;
+    }
+
+    div[data-testid="stColumn"] {
+        min-width: 0 !important;
+        flex: 1 1 0 !important;
+    }
+
+    /* Streamlit 버전에 따른 호환용 */
+    div[data-testid="column"] {
+        min-width: 0 !important;
+        flex: 1 1 0 !important;
+    }
+
+    /* Metric 디자인 */
+    div[data-testid="stMetric"] {
+        background: rgba(128, 128, 128, 0.08);
+        padding: 5px 3px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    div[data-testid="stMetricLabel"] {
+        justify-content: center;
+        font-size: 0.72rem !important;
+        white-space: nowrap !important;
+    }
+
+    div[data-testid="stMetricValue"] {
+        font-size: 1.05rem !important;
+        white-space: nowrap !important;
+    }
+
+    div[data-testid="stMetricDelta"] {
+        justify-content: center;
+        font-size: 0.7rem !important;
+    }
+
+    /* 버튼 */
     .stButton > button {
-        height: 46px;
+        height: 45px;
         font-size: 1rem;
         font-weight: 700;
         border-radius: 10px;
+        padding: 0.2rem !important;
     }
 
-    div[data-testid="stVerticalBlock"] {
-        gap: 0.35rem;
+    /* Select box compact */
+    div[data-baseweb="select"] {
+        min-height: 40px;
+        font-size: 0.9rem;
     }
 
+    /* Alert compact */
+    div[data-testid="stAlert"] {
+        padding: 0.45rem 0.6rem;
+    }
+
+    /* Streamlit 메뉴 숨기기 */
     #MainMenu {
         visibility: hidden;
     }
@@ -79,68 +138,7 @@ st.markdown(
 
 
 # ============================================================
-# 공통 compact metric row
-# ============================================================
-
-def metric_row(items):
-    """
-    items 예:
-    [
-        ("문제", "10"),
-        ("정답", "6"),
-        ("정답률", "60%"),
-    ]
-    """
-
-    cells = ""
-
-    for label, value in items:
-        cells += f"""
-        <div style="
-            flex:1;
-            min-width:0;
-            text-align:center;
-            background:rgba(128,128,128,0.08);
-            padding:6px 2px;
-            border-radius:8px;
-        ">
-            <div style="
-                font-size:11px;
-                opacity:0.75;
-                white-space:nowrap;
-            ">
-                {label}
-            </div>
-
-            <div style="
-                font-size:18px;
-                font-weight:700;
-                white-space:nowrap;
-                overflow:hidden;
-                text-overflow:ellipsis;
-            ">
-                {value}
-            </div>
-        </div>
-        """
-
-    st.markdown(
-        f"""
-        <div style="
-            display:flex;
-            gap:6px;
-            width:100%;
-            margin:2px 0 6px 0;
-        ">
-            {cells}
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-# ============================================================
-# RSI
+# RSI 계산
 # ============================================================
 
 def calculate_rsi(series, period=14):
@@ -164,11 +162,13 @@ def calculate_rsi(series, period=14):
 
     rs = avg_gain / avg_loss.replace(0, np.nan)
 
-    return 100 - (100 / (1 + rs))
+    rsi = 100 - (100 / (1 + rs))
+
+    return rsi
 
 
 # ============================================================
-# Binance 데이터
+# Binance 데이터 다운로드
 # ============================================================
 
 @st.cache_data(ttl=600)
@@ -182,7 +182,11 @@ def download_data(symbol, timeframe):
 
     interval = interval_map[timeframe]
 
-    url = "https://data-api.binance.vision/api/v3/klines"
+    # Binance 공개 Market Data 전용 주소
+    url = (
+        "https://data-api.binance.vision"
+        "/api/v3/klines"
+    )
 
     params = {
         "symbol": symbol,
@@ -220,15 +224,19 @@ def download_data(symbol, timeframe):
         columns=columns,
     )
 
-    for column in [
+    numeric_columns = [
         "Open",
         "High",
         "Low",
         "Close",
         "Volume",
-    ]:
+    ]
+
+    for column in numeric_columns:
+
         df[column] = pd.to_numeric(
-            df[column]
+            df[column],
+            errors="coerce",
         )
 
     df["OpenTime"] = pd.to_datetime(
@@ -248,21 +256,31 @@ def download_data(symbol, timeframe):
             "Close",
             "Volume",
         ]
-    ]
+    ].dropna()
 
+    # RSI
     df["RSI"] = calculate_rsi(
         df["Close"]
     )
 
-    df["EMA20"] = df["Close"].ewm(
-        span=20,
-        adjust=False,
-    ).mean()
+    # EMA
+    df["EMA20"] = (
+        df["Close"]
+        .ewm(
+            span=20,
+            adjust=False,
+        )
+        .mean()
+    )
 
-    df["EMA60"] = df["Close"].ewm(
-        span=60,
-        adjust=False,
-    ).mean()
+    df["EMA60"] = (
+        df["Close"]
+        .ewm(
+            span=60,
+            adjust=False,
+        )
+        .mean()
+    )
 
     return df.dropna()
 
@@ -274,7 +292,16 @@ def download_data(symbol, timeframe):
 def choose_question_index(df):
 
     minimum = LOOKBACK
+
+    # 다음 봉 하나가 필요하므로
+    # 마지막 봉은 문제 시작점으로 사용하지 않음
     maximum = len(df) - 2
+
+    if maximum <= minimum:
+
+        raise ValueError(
+            "퀴즈 생성에 필요한 데이터가 부족합니다."
+        )
 
     return random.randint(
         minimum,
@@ -289,18 +316,23 @@ def new_question(df):
     )
 
     st.session_state.choice = None
+
     st.session_state.revealed = False
 
 
 def get_question_data(df):
 
-    index = st.session_state.question_index
+    index = (
+        st.session_state.question_index
+    )
 
     past = df.iloc[
         index - LOOKBACK:index
     ].copy()
 
-    next_candle = df.iloc[index].copy()
+    next_candle = (
+        df.iloc[index].copy()
+    )
 
     return past, next_candle
 
@@ -314,7 +346,7 @@ def make_quiz_chart(past):
     x = list(
         range(
             1,
-            len(past) + 1
+            len(past) + 1,
         )
     )
 
@@ -322,14 +354,15 @@ def make_quiz_chart(past):
         rows=3,
         cols=1,
         shared_xaxes=True,
-        vertical_spacing=0.02,
+        vertical_spacing=0.015,
         row_heights=[
-            0.67,
-            0.14,
+            0.68,
+            0.13,
             0.19,
         ],
     )
 
+    # 가격
     fig.add_trace(
         go.Candlestick(
             x=x,
@@ -337,25 +370,30 @@ def make_quiz_chart(past):
             high=past["High"],
             low=past["Low"],
             close=past["Close"],
+            name="Price",
         ),
         row=1,
         col=1,
     )
 
+    # 거래량
     fig.add_trace(
         go.Bar(
             x=x,
             y=past["Volume"],
+            name="Volume",
         ),
         row=2,
         col=1,
     )
 
+    # RSI
     fig.add_trace(
         go.Scatter(
             x=x,
             y=past["RSI"],
             mode="lines",
+            name="RSI",
         ),
         row=3,
         col=1,
@@ -364,6 +402,7 @@ def make_quiz_chart(past):
     fig.add_hline(
         y=70,
         line_dash="dash",
+        line_width=1,
         row=3,
         col=1,
     )
@@ -371,6 +410,7 @@ def make_quiz_chart(past):
     fig.add_hline(
         y=30,
         line_dash="dash",
+        line_width=1,
         row=3,
         col=1,
     )
@@ -382,7 +422,7 @@ def make_quiz_chart(past):
     )
 
     fig.update_layout(
-        height=360,
+        height=345,
         margin=dict(
             l=0,
             r=0,
@@ -420,7 +460,7 @@ def make_result_chart(
     x = list(
         range(
             1,
-            len(combined) + 1
+            len(combined) + 1,
         )
     )
 
@@ -436,6 +476,7 @@ def make_result_chart(
         )
     )
 
+    # 마지막 공개된 봉 강조
     fig.add_vrect(
         x0=len(past) + 0.5,
         x1=len(past) + 1.5,
@@ -444,7 +485,7 @@ def make_result_chart(
     )
 
     fig.update_layout(
-        height=280,
+        height=270,
         margin=dict(
             l=0,
             r=0,
@@ -453,13 +494,14 @@ def make_result_chart(
         ),
         xaxis_rangeslider_visible=False,
         showlegend=False,
+        dragmode="pan",
     )
 
     return fig
 
 
 # ============================================================
-# 정답 판정
+# 다음 봉 판정
 # ============================================================
 
 def evaluate_next_candle(
@@ -469,6 +511,14 @@ def evaluate_next_candle(
 
     open_price = float(
         next_candle["Open"]
+    )
+
+    high_price = float(
+        next_candle["High"]
+    )
+
+    low_price = float(
+        next_candle["Low"]
     )
 
     close_price = float(
@@ -482,16 +532,21 @@ def evaluate_next_candle(
     ) * 100
 
     if close_price > open_price:
+
         answer = "UP"
 
     elif close_price < open_price:
+
         answer = "DOWN"
 
     else:
+
         answer = "DOJI"
 
     return {
         "open": open_price,
+        "high": high_price,
+        "low": low_price,
         "close": close_price,
         "return": return_pct,
         "answer": answer,
@@ -515,6 +570,7 @@ defaults = {
 for key, value in defaults.items():
 
     if key not in st.session_state:
+
         st.session_state[key] = value
 
 
@@ -522,16 +578,19 @@ for key, value in defaults.items():
 # 제목
 # ============================================================
 
-st.title("📈 Next Candle Quiz")
+st.title(
+    "📈 Next Candle Quiz"
+)
 
 
 # ============================================================
-# 종목 / 시간봉
+# 종목 / 시간봉 선택
 # ============================================================
 
 top1, top2 = st.columns(2)
 
 with top1:
+
     symbol = st.selectbox(
         "코인",
         [
@@ -544,7 +603,9 @@ with top1:
         label_visibility="collapsed",
     )
 
+
 with top2:
+
     timeframe = st.selectbox(
         "시간봉",
         [
@@ -558,7 +619,7 @@ with top2:
 
 
 # ============================================================
-# 성적
+# 정답률 계산
 # ============================================================
 
 if st.session_state.total > 0:
@@ -574,22 +635,35 @@ else:
     accuracy = 0
 
 
-metric_row(
-    [
-        (
-            "문제",
-            str(st.session_state.total),
-        ),
-        (
-            "정답",
-            str(st.session_state.correct),
-        ),
-        (
-            "정답률",
-            f"{accuracy:.0f}%",
-        ),
-    ]
+# ============================================================
+# 문제 / 정답 / 정답률
+# 아이폰에서도 1행 고정
+# ============================================================
+
+score1, score2, score3 = st.columns(
+    [1, 1, 1]
 )
+
+with score1:
+
+    st.metric(
+        "문제",
+        st.session_state.total,
+    )
+
+with score2:
+
+    st.metric(
+        "정답",
+        st.session_state.correct,
+    )
+
+with score3:
+
+    st.metric(
+        "정답률",
+        f"{accuracy:.0f}%",
+    )
 
 
 # ============================================================
@@ -603,10 +677,18 @@ try:
         timeframe,
     )
 
+except requests.exceptions.RequestException as e:
+
+    st.error(
+        f"Binance 데이터를 불러오지 못했습니다: {e}"
+    )
+
+    st.stop()
+
 except Exception as e:
 
     st.error(
-        f"데이터 오류: {e}"
+        f"데이터 처리 중 오류가 발생했습니다: {e}"
     )
 
     st.stop()
@@ -615,14 +697,14 @@ except Exception as e:
 if len(df) < LOOKBACK + 10:
 
     st.error(
-        "데이터가 부족합니다."
+        "퀴즈를 만들기 위한 데이터가 부족합니다."
     )
 
     st.stop()
 
 
 # ============================================================
-# 설정 변경
+# 코인 / 시간봉 변경 감지
 # ============================================================
 
 signature = (
@@ -630,10 +712,7 @@ signature = (
 )
 
 
-if (
-    "question_signature"
-    not in st.session_state
-):
+if "question_signature" not in st.session_state:
 
     st.session_state.question_signature = (
         signature
@@ -651,6 +730,10 @@ if (
 
     new_question(df)
 
+
+# ============================================================
+# 최초 문제
+# ============================================================
 
 if (
     st.session_state.question_index
@@ -694,23 +777,33 @@ if not st.session_state.revealed:
     )
 
 
-    # 현재 가격 / RSI 한 줄 고정
+    # ========================================================
+    # 현재 가격 / RSI
+    # 아이폰에서도 1행 고정
+    # ========================================================
 
-    metric_row(
-        [
-            (
-                "현재 가격",
-                f"{last_close:,.2f}",
-            ),
-            (
-                "RSI",
-                f"{current_rsi:.1f}",
-            ),
-        ]
+    info1, info2 = st.columns(
+        [1.5, 1]
     )
 
+    with info1:
 
-    # 상승 / 하락 버튼
+        st.metric(
+            "현재 가격",
+            f"{last_close:,.2f}",
+        )
+
+    with info2:
+
+        st.metric(
+            "RSI",
+            f"{current_rsi:.1f}",
+        )
+
+
+    # ========================================================
+    # 상승 / 하락
+    # ========================================================
 
     up_col, down_col = st.columns(2)
 
@@ -724,6 +817,7 @@ if not st.session_state.revealed:
         ):
 
             st.session_state.choice = "UP"
+
             st.session_state.revealed = True
 
             st.rerun()
@@ -737,6 +831,7 @@ if not st.session_state.revealed:
         ):
 
             st.session_state.choice = "DOWN"
+
             st.session_state.revealed = True
 
             st.rerun()
@@ -755,11 +850,13 @@ else:
 
 
     score_key = (
+        f"scored_"
         f"{signature}_"
         f"{st.session_state.question_index}"
     )
 
 
+    # 같은 문제를 여러 번 점수 반영하지 않도록 함
     if score_key not in st.session_state:
 
         st.session_state[
@@ -767,6 +864,7 @@ else:
         ] = True
 
 
+        # DOJI는 성적에서 제외
         if result["answer"] != "DOJI":
 
             st.session_state.total += 1
@@ -777,12 +875,14 @@ else:
                 st.session_state.correct += 1
 
 
-    # 결과 메시지
+    # ========================================================
+    # 정답 메시지
+    # ========================================================
 
     if result["answer"] == "DOJI":
 
         st.warning(
-            "➖ DOJI"
+            "➖ DOJI · 점수 제외"
         )
 
     elif result["correct"]:
@@ -798,7 +898,9 @@ else:
         )
 
 
+    # ========================================================
     # 결과 차트
+    # ========================================================
 
     st.plotly_chart(
         make_result_chart(
@@ -808,9 +910,14 @@ else:
         use_container_width=True,
         config={
             "displayModeBar": False,
+            "scrollZoom": True,
         },
     )
 
+
+    # ========================================================
+    # 결과 텍스트
+    # ========================================================
 
     if result["answer"] == "UP":
 
@@ -825,37 +932,44 @@ else:
         result_text = "➖ DOJI"
 
 
-    # 결과 / Open / Close 한 줄 고정
+    # ========================================================
+    # 결과 / Open / Close
+    # 한 줄 고정
+    # ========================================================
 
-    metric_row(
-        [
-            (
-                "결과",
-                result_text,
-            ),
-            (
-                "Open",
-                f"{result['open']:,.2f}",
-            ),
-            (
-                "Close",
-                f"{result['close']:,.2f}",
-            ),
-        ]
+    result1, result2, result3 = st.columns(
+        [1, 1.2, 1.2]
     )
 
 
-    # 등락률
+    with result1:
 
-    metric_row(
-        [
-            (
-                "다음 봉 등락률",
-                f"{result['return']:+.2f}%",
-            ),
-        ]
-    )
+        st.metric(
+            "결과",
+            result_text,
+        )
 
+
+    with result2:
+
+        st.metric(
+            "Open",
+            f"{result['open']:,.2f}",
+        )
+
+
+    with result3:
+
+        st.metric(
+            "Close",
+            f"{result['close']:,.2f}",
+            f"{result['return']:+.2f}%",
+        )
+
+
+    # ========================================================
+    # 다음 문제
+    # ========================================================
 
     if st.button(
         "➡️ 다음 문제",
@@ -878,6 +992,7 @@ if st.button(
 ):
 
     st.session_state.total = 0
+
     st.session_state.correct = 0
 
     st.rerun()
