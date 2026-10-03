@@ -56,20 +56,6 @@ st.markdown(
         border-radius: 10px;
     }
 
-    [data-testid="stMetric"] {
-        background-color: rgba(128,128,128,0.07);
-        padding: 3px 6px;
-        border-radius: 8px;
-    }
-
-    [data-testid="stMetricLabel"] {
-        font-size: 0.8rem;
-    }
-
-    [data-testid="stMetricValue"] {
-        font-size: 1.15rem;
-    }
-
     div[data-testid="stVerticalBlock"] {
         gap: 0.35rem;
     }
@@ -90,6 +76,67 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+
+# ============================================================
+# 공통 compact metric row
+# ============================================================
+
+def metric_row(items):
+    """
+    items 예:
+    [
+        ("문제", "10"),
+        ("정답", "6"),
+        ("정답률", "60%"),
+    ]
+    """
+
+    cells = ""
+
+    for label, value in items:
+        cells += f"""
+        <div style="
+            flex:1;
+            min-width:0;
+            text-align:center;
+            background:rgba(128,128,128,0.08);
+            padding:6px 2px;
+            border-radius:8px;
+        ">
+            <div style="
+                font-size:11px;
+                opacity:0.75;
+                white-space:nowrap;
+            ">
+                {label}
+            </div>
+
+            <div style="
+                font-size:18px;
+                font-weight:700;
+                white-space:nowrap;
+                overflow:hidden;
+                text-overflow:ellipsis;
+            ">
+                {value}
+            </div>
+        </div>
+        """
+
+    st.markdown(
+        f"""
+        <div style="
+            display:flex;
+            gap:6px;
+            width:100%;
+            margin:2px 0 6px 0;
+        ">
+            {cells}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 # ============================================================
@@ -247,17 +294,13 @@ def new_question(df):
 
 def get_question_data(df):
 
-    index = (
-        st.session_state.question_index
-    )
+    index = st.session_state.question_index
 
     past = df.iloc[
         index - LOOKBACK:index
     ].copy()
 
-    next_candle = (
-        df.iloc[index].copy()
-    )
+    next_candle = df.iloc[index].copy()
 
     return past, next_candle
 
@@ -439,15 +482,12 @@ def evaluate_next_candle(
     ) * 100
 
     if close_price > open_price:
-
         answer = "UP"
 
     elif close_price < open_price:
-
         answer = "DOWN"
 
     else:
-
         answer = "DOJI"
 
     return {
@@ -475,7 +515,6 @@ defaults = {
 for key, value in defaults.items():
 
     if key not in st.session_state:
-
         st.session_state[key] = value
 
 
@@ -493,7 +532,6 @@ st.title("📈 Next Candle Quiz")
 top1, top2 = st.columns(2)
 
 with top1:
-
     symbol = st.selectbox(
         "코인",
         [
@@ -506,9 +544,7 @@ with top1:
         label_visibility="collapsed",
     )
 
-
 with top2:
-
     timeframe = st.selectbox(
         "시간봉",
         [
@@ -522,7 +558,7 @@ with top2:
 
 
 # ============================================================
-# 성적 - 한 줄
+# 성적
 # ============================================================
 
 if st.session_state.total > 0:
@@ -538,21 +574,21 @@ else:
     accuracy = 0
 
 
-s1, s2, s3 = st.columns(3)
-
-s1.metric(
-    "문제",
-    st.session_state.total,
-)
-
-s2.metric(
-    "정답",
-    st.session_state.correct,
-)
-
-s3.metric(
-    "정답률",
-    f"{accuracy:.0f}%",
+metric_row(
+    [
+        (
+            "문제",
+            str(st.session_state.total),
+        ),
+        (
+            "정답",
+            str(st.session_state.correct),
+        ),
+        (
+            "정답률",
+            f"{accuracy:.0f}%",
+        ),
+    ]
 )
 
 
@@ -658,21 +694,24 @@ if not st.session_state.revealed:
     )
 
 
-    # 현재가격 + RSI 한 줄
-    info1, info2 = st.columns(2)
+    # 현재 가격 / RSI 한 줄 고정
 
-    info1.metric(
-        "현재 가격",
-        f"{last_close:,.2f}",
+    metric_row(
+        [
+            (
+                "현재 가격",
+                f"{last_close:,.2f}",
+            ),
+            (
+                "RSI",
+                f"{current_rsi:.1f}",
+            ),
+        ]
     )
 
-    info2.metric(
-        "RSI",
-        f"{current_rsi:.1f}",
-    )
 
+    # 상승 / 하락 버튼
 
-    # 상승 / 하락 버튼 한 줄
     up_col, down_col = st.columns(2)
 
 
@@ -704,7 +743,7 @@ if not st.session_state.revealed:
 
 
 # ============================================================
-# 결과
+# 결과 화면
 # ============================================================
 
 else:
@@ -738,6 +777,8 @@ else:
                 st.session_state.correct += 1
 
 
+    # 결과 메시지
+
     if result["answer"] == "DOJI":
 
         st.warning(
@@ -756,6 +797,8 @@ else:
             "❌ 오답"
         )
 
+
+    # 결과 차트
 
     st.plotly_chart(
         make_result_chart(
@@ -782,23 +825,35 @@ else:
         result_text = "➖ DOJI"
 
 
-    # 결과도 한 줄
-    r1, r2, r3 = st.columns(3)
+    # 결과 / Open / Close 한 줄 고정
 
-    r1.metric(
-        "결과",
-        result_text,
+    metric_row(
+        [
+            (
+                "결과",
+                result_text,
+            ),
+            (
+                "Open",
+                f"{result['open']:,.2f}",
+            ),
+            (
+                "Close",
+                f"{result['close']:,.2f}",
+            ),
+        ]
     )
 
-    r2.metric(
-        "Open",
-        f"{result['open']:,.2f}",
-    )
 
-    r3.metric(
-        "Close",
-        f"{result['close']:,.2f}",
-        f"{result['return']:+.2f}%",
+    # 등락률
+
+    metric_row(
+        [
+            (
+                "다음 봉 등락률",
+                f"{result['return']:+.2f}%",
+            ),
+        ]
     )
 
 
