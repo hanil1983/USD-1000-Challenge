@@ -114,7 +114,7 @@ def download_data(symbol, timeframe):
 
     interval = interval_map[timeframe]
 
-    url = "https://api.binance.com/api/v3/klines"
+    url = "https://data-api.binance.vision/api/v3/klines"
 
     params = {
         "symbol": symbol,
