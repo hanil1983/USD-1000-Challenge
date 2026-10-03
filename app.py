@@ -1896,27 +1896,29 @@ position_value = (
 )
 
 
-st.markdown(
-    f"""
-    <div class="position-summary">
+# ============================================================
+# 포지션 정보
+# ============================================================
 
-        <div class="position-item">
-            포지션 ${position_value:,.2f}
-        </div>
+position1, position2, position3 = st.columns(3)
 
-        <div class="position-item">
-            투자금 ${display_margin:,.2f}
-        </div>
+with position1:
+    st.metric(
+        "포지션",
+        f"${position_value:,.2f}",
+    )
 
-        <div class="position-item">
-            레버리지 {display_leverage}x
-        </div>
+with position2:
+    st.metric(
+        "투자금",
+        f"${display_margin:,.2f}",
+    )
 
-    </div>
-    """,
-
-    unsafe_allow_html=True,
-)
+with position3:
+    st.metric(
+        "레버리지",
+        f"{display_leverage}x",
+    )
 
 
 # ============================================================
