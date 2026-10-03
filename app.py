@@ -97,7 +97,7 @@ st.markdown(
        ======================================================== */
 
     h3 {
-        font-size: 2rem !important;
+        font-size: 1.6rem !important;
         font-weight: 700 !important;
 
         line-height: 30px !important;
