@@ -32,6 +32,7 @@ st.markdown(
     """
     <style>
 
+    /* Streamlit 기본 UI 제거 */
     header[data-testid="stHeader"] {
         display: none !important;
     }
@@ -44,28 +45,35 @@ st.markdown(
         display: none !important;
     }
 
+    div[data-testid="stToolbar"] {
+        display: none !important;
+    }
+
+
+    /* ========================================================
+       전체 화면
+       ======================================================== */
+
     .block-container {
         max-width: 760px;
+
         padding-top: 0.20rem !important;
         padding-left: 0.35rem !important;
         padding-right: 0.35rem !important;
         padding-bottom: 0 !important;
     }
 
-    h3 {
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-        padding: 0 !important;
-    }
 
     div[data-testid="stVerticalBlock"] {
         gap: 0.12rem !important;
     }
 
+
     div[data-testid="stHorizontalBlock"] {
         flex-wrap: nowrap !important;
         gap: 0.20rem !important;
     }
+
 
     div[data-testid="stColumn"],
     div[data-testid="column"] {
@@ -75,52 +83,41 @@ st.markdown(
 
 
     /* ========================================================
-       Metric
+       제목
        ======================================================== */
 
-    div[data-testid="stMetric"] {
-        background: rgba(120,120,120,0.07);
-        padding: 2px 3px !important;
-        border-radius: 7px;
-        text-align: center;
-    }
+    .challenge-title {
+        font-size: 1.15rem;
 
-    div[data-testid="stMetricLabel"] {
-        justify-content: center;
-        font-size: 0.62rem !important;
+        font-weight: 700;
+
         white-space: nowrap !important;
-    }
 
-    div[data-testid="stMetricValue"] {
-        font-size: 0.87rem !important;
-        white-space: nowrap !important;
-    }
+        line-height: 30px;
 
-    div[data-testid="stMetricDelta"] {
-        justify-content: center;
-        font-size: 0.58rem !important;
+        margin: 0;
+
+        padding: 0;
     }
 
 
     /* ========================================================
-       일반 버튼
+       초기화 버튼
        ======================================================== */
 
-    .stButton > button {
-        min-height: 35px !important;
-        height: 35px !important;
-        font-size: 0.82rem !important;
-        font-weight: 700 !important;
-        border-radius: 8px !important;
-        padding: 0.02rem 0.08rem !important;
+    .st-key-reset_top {
+        display: flex !important;
+
+        justify-content: flex-end !important;
+
+        align-items: center !important;
+
+        width: 100% !important;
     }
 
-
-    /* ========================================================
-       제목 오른쪽 초기화 버튼
-       ======================================================== */
 
     .st-key-reset_top button {
+
         width: 28px !important;
         min-width: 28px !important;
         max-width: 28px !important;
@@ -130,6 +127,8 @@ st.markdown(
 
         padding: 0 !important;
 
+        margin: 0 !important;
+
         font-size: 0.82rem !important;
 
         border-radius: 7px !important;
@@ -137,21 +136,119 @@ st.markdown(
 
 
     /* ========================================================
-       투자 설정 행 정렬
+       Metric
        ======================================================== */
 
-    .st-key-trade_controls div[data-testid="stHorizontalBlock"] {
-        align-items: flex-end !important;
+    div[data-testid="stMetric"] {
+
+        background:
+        rgba(120,120,120,0.07);
+
+        padding:
+        2px 3px !important;
+
+        border-radius:
+        7px;
+
+        text-align:
+        center;
     }
+
+
+    div[data-testid="stMetricLabel"] {
+
+        justify-content:
+        center;
+
+        font-size:
+        0.62rem !important;
+
+        white-space:
+        nowrap !important;
+    }
+
+
+    div[data-testid="stMetricValue"] {
+
+        font-size:
+        0.87rem !important;
+
+        white-space:
+        nowrap !important;
+    }
+
+
+    div[data-testid="stMetricDelta"] {
+
+        justify-content:
+        center;
+
+        font-size:
+        0.58rem !important;
+    }
+
+
+    /* ========================================================
+       일반 버튼
+       ======================================================== */
+
+    .stButton > button {
+
+        min-height:
+        35px !important;
+
+        height:
+        35px !important;
+
+        font-size:
+        0.82rem !important;
+
+        font-weight:
+        700 !important;
+
+        border-radius:
+        8px !important;
+
+        padding:
+        0.02rem 0.08rem !important;
+    }
+
+
+    /* ========================================================
+       투자 설정 행
+       ======================================================== */
+
+    .st-key-trade_controls
+    div[data-testid="stHorizontalBlock"] {
+
+        align-items:
+        flex-end !important;
+    }
+
+
+    /* -5 / +5 */
+    .st-key-pct_minus_wrap,
+    .st-key-pct_plus_wrap {
+
+        padding-top:
+        18px !important;
+    }
+
 
     .st-key-pct_minus_wrap button,
     .st-key-pct_plus_wrap button {
-        height: 35px !important;
-        min-height: 35px !important;
 
-        padding: 0 !important;
+        height:
+        35px !important;
 
-        font-size: 0.70rem !important;
+        min-height:
+        35px !important;
+
+        font-size:
+        0.70rem !important;
+
+        padding:
+        0 !important;
     }
 
 
@@ -160,29 +257,45 @@ st.markdown(
        ======================================================== */
 
     div[data-testid="stNumberInput"] input {
-        height: 35px !important;
-        min-height: 35px !important;
 
-        font-size: 0.77rem !important;
+        height:
+        35px !important;
 
-        padding-left: 4px !important;
-        padding-right: 2px !important;
+        min-height:
+        35px !important;
+
+        font-size:
+        0.77rem !important;
+
+        padding-left:
+        4px !important;
+
+        padding-right:
+        2px !important;
     }
 
 
     /* ========================================================
-       레버리지 select
+       Select
        ======================================================== */
 
     div[data-baseweb="select"] {
-        min-height: 35px !important;
+
+        min-height:
+        35px !important;
     }
 
-    div[data-baseweb="select"] > div {
-        height: 35px !important;
-        min-height: 35px !important;
 
-        font-size: 0.79rem !important;
+    div[data-baseweb="select"] > div {
+
+        height:
+        35px !important;
+
+        min-height:
+        35px !important;
+
+        font-size:
+        0.79rem !important;
     }
 
 
@@ -191,17 +304,29 @@ st.markdown(
        ======================================================== */
 
     div[data-testid="stSlider"] {
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
+
+        padding-top:
+        0 !important;
+
+        padding-bottom:
+        0 !important;
     }
+
 
     div[data-testid="stSlider"] label {
-        font-size: 0.64rem !important;
+
+        font-size:
+        0.64rem !important;
     }
 
+
     label[data-testid="stWidgetLabel"] p {
-        font-size: 0.64rem !important;
-        white-space: nowrap !important;
+
+        font-size:
+        0.64rem !important;
+
+        white-space:
+        nowrap !important;
     }
 
 
@@ -210,9 +335,15 @@ st.markdown(
        ======================================================== */
 
     .st-key-zoom_selected button {
-        background-color: #111111 !important;
-        color: white !important;
-        border-color: #111111 !important;
+
+        background-color:
+        #111111 !important;
+
+        color:
+        white !important;
+
+        border-color:
+        #111111 !important;
     }
 
 
@@ -221,43 +352,75 @@ st.markdown(
        ======================================================== */
 
     .st-key-up_area button {
-        background-color: #16a34a !important;
-        color: white !important;
-        border-color: #16a34a !important;
+
+        background-color:
+        #16a34a !important;
+
+        color:
+        white !important;
+
+        border-color:
+        #16a34a !important;
     }
 
+
     .st-key-up_area button:hover {
-        background-color: #15803d !important;
-        border-color: #15803d !important;
+
+        background-color:
+        #15803d !important;
+
+        border-color:
+        #15803d !important;
     }
 
 
     /* ========================================================
-       하락 = 빨간색
+       하락 = 빨강
        ======================================================== */
 
     .st-key-down_area button {
-        background-color: #dc2626 !important;
-        color: white !important;
-        border-color: #dc2626 !important;
+
+        background-color:
+        #dc2626 !important;
+
+        color:
+        white !important;
+
+        border-color:
+        #dc2626 !important;
     }
 
+
     .st-key-down_area button:hover {
-        background-color: #b91c1c !important;
-        border-color: #b91c1c !important;
+
+        background-color:
+        #b91c1c !important;
+
+        border-color:
+        #b91c1c !important;
     }
 
 
     /* ========================================================
-       다음 문제 버튼
+       다음 버튼
        ======================================================== */
 
     .st-key-next_area button {
-        background-color: #111111 !important;
-        color: white !important;
-        border-color: #111111 !important;
-        height: 38px !important;
-        min-height: 38px !important;
+
+        background-color:
+        #111111 !important;
+
+        color:
+        white !important;
+
+        border-color:
+        #111111 !important;
+
+        height:
+        38px !important;
+
+        min-height:
+        38px !important;
     }
 
 
@@ -266,11 +429,15 @@ st.markdown(
        ======================================================== */
 
     div[data-testid="stAlert"] {
-        min-height: 38px !important;
 
-        padding: 0.25rem 0.40rem !important;
+        min-height:
+        38px !important;
 
-        margin: 0 !important;
+        padding:
+        0.25rem 0.40rem !important;
+
+        margin:
+        0 !important;
     }
 
 
@@ -279,8 +446,12 @@ st.markdown(
        ======================================================== */
 
     div[data-testid="stPlotlyChart"] {
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
+
+        margin-top:
+        0 !important;
+
+        margin-bottom:
+        0 !important;
     }
 
 
@@ -289,24 +460,39 @@ st.markdown(
        ======================================================== */
 
     div[data-testid="stCaptionContainer"] {
-        text-align: center;
-        margin: 0 !important;
-        padding: 0 !important;
+
+        text-align:
+        center;
+
+        margin:
+        0 !important;
+
+        padding:
+        0 !important;
     }
 
+
     div[data-testid="stCaptionContainer"] p {
-        font-size: 0.68rem !important;
-        margin: 0 !important;
+
+        font-size:
+        0.68rem !important;
+
+        margin:
+        0 !important;
     }
 
 
     /* ========================================================
-       아이폰 / 모바일 하단 안전 영역
+       모바일 하단 안전 공간
        ======================================================== */
 
     .bottom-safe-area {
-        height: calc(
-            42px + env(safe-area-inset-bottom)
+
+        height:
+        calc(
+            44px
+            +
+            env(safe-area-inset-bottom)
         );
     }
 
@@ -317,7 +503,7 @@ st.markdown(
 
 
 # ============================================================
-# 표시 함수
+# 가격 표시
 # ============================================================
 
 def format_price(value):
@@ -423,12 +609,15 @@ def download_data(symbol, timeframe):
 defaults = {
 
     "question_index": None,
+
     "question_id": 0,
 
     "choice": None,
+
     "revealed": False,
 
     "total": 0,
+
     "correct": 0,
 
     "visible_bars": 50,
@@ -436,18 +625,19 @@ defaults = {
     "balance": INITIAL_CAPITAL,
 
     "position_pct": 25,
+
     "position_slider": 25,
 
     "investment_amount": 250.0,
 
-    # percent = 슬라이더 기준
-    # amount = 직접 입력 기준
     "investment_mode": "percent",
 
     "leverage": 1,
+
     "leverage_widget": 1,
 
     "trade_margin": 0.0,
+
     "trade_leverage": 1,
 
     "last_pnl": 0.0,
@@ -462,7 +652,7 @@ for key, value in defaults.items():
 
 
 # ============================================================
-# 투자 설정 동기화
+# 투자 설정
 # ============================================================
 
 def current_investment_key():
@@ -487,15 +677,16 @@ def sync_from_slider():
 
     amount = (
         st.session_state.balance
-        * pct
-        / 100
+        *
+        pct
+        /
+        100
     )
 
     st.session_state.investment_amount = amount
 
     key = current_investment_key()
 
-    # callback 시점이므로 안전하게 위젯 상태 동기화
     if key in st.session_state:
 
         st.session_state[key] = amount
@@ -505,7 +696,8 @@ def adjust_position(delta):
 
     new_pct = (
         st.session_state.position_slider
-        + delta
+        +
+        delta
     )
 
     new_pct = max(
@@ -516,27 +708,42 @@ def adjust_position(delta):
         ),
     )
 
-    st.session_state.position_slider = new_pct
+    st.session_state.position_slider = (
+        new_pct
+    )
 
-    st.session_state.position_pct = new_pct
+    st.session_state.position_pct = (
+        new_pct
+    )
 
     st.session_state.investment_mode = (
         "percent"
     )
 
     amount = (
+
         st.session_state.balance
-        * new_pct
-        / 100
+
+        *
+
+        new_pct
+
+        /
+
+        100
     )
 
-    st.session_state.investment_amount = amount
+    st.session_state.investment_amount = (
+        amount
+    )
 
     key = current_investment_key()
 
     if key in st.session_state:
 
-        st.session_state[key] = amount
+        st.session_state[key] = (
+            amount
+        )
 
 
 def sync_from_amount(widget_key):
@@ -557,27 +764,48 @@ def sync_from_amount(widget_key):
         ),
     )
 
-    st.session_state.investment_amount = amount
+    st.session_state.investment_amount = (
+        amount
+    )
 
     st.session_state.investment_mode = (
         "amount"
     )
 
     if balance <= 0:
+
         return
 
+
     pct = (
+
         amount
-        / balance
-        * 100
+
+        /
+
+        balance
+
+        *
+
+        100
+
     )
 
+
     slider_pct = (
+
         round(
-            pct / 5
+            pct
+            /
+            5
         )
-        * 5
+
+        *
+
+        5
+
     )
+
 
     slider_pct = max(
         5,
@@ -586,6 +814,7 @@ def sync_from_amount(widget_key):
             slider_pct,
         ),
     )
+
 
     st.session_state.position_pct = (
         slider_pct
@@ -613,7 +842,8 @@ def choose_question_index(df):
 
     maximum = (
         len(df)
-        - 2
+        -
+        2
     )
 
     if maximum <= minimum:
@@ -645,7 +875,6 @@ def new_question(df):
     st.session_state.trade_leverage = 1
 
 
-    # 슬라이더 방식이었다면 새로운 자산 기준으로 재계산
     if (
         st.session_state.investment_mode
         ==
@@ -665,7 +894,6 @@ def new_question(df):
             100
         )
 
-    # 직접 입력 방식이라면 같은 $ 금액 유지
     else:
 
         st.session_state.investment_amount = min(
@@ -780,7 +1008,10 @@ def lock_chart(fig):
 
     fig.update_yaxes(
         fixedrange=True,
-        gridcolor="rgba(128,128,128,0.18)",
+
+        gridcolor=
+        "rgba(128,128,128,0.18)",
+
         zeroline=False,
     )
 
@@ -804,6 +1035,7 @@ def make_chart(
         combined = pd.concat(
             [
                 past,
+
                 pd.DataFrame(
                     [next_candle]
                 ),
@@ -818,7 +1050,9 @@ def make_chart(
     x = list(
         range(
             1,
-            len(combined) + 1,
+            len(combined)
+            +
+            1,
         )
     )
 
@@ -838,10 +1072,7 @@ def make_chart(
     )
 
 
-    # ========================================================
-    # 캔들
-    # ========================================================
-
+    # 가격
     fig.add_trace(
         go.Candlestick(
 
@@ -877,10 +1108,7 @@ def make_chart(
     )
 
 
-    # ========================================================
     # 거래량
-    # ========================================================
-
     volume_colors = np.where(
 
         combined["Close"]
@@ -909,13 +1137,11 @@ def make_chart(
     )
 
 
-    # ========================================================
-    # 결과 봉 강조
-    # ========================================================
-
+    # 정답 봉 강조
     if next_candle is not None:
 
         fig.add_vrect(
+
             x0=
             len(past)
             +
@@ -955,7 +1181,6 @@ def make_chart(
         +
 
         0.5
-
     )
 
 
@@ -966,7 +1191,6 @@ def make_chart(
         +
 
         0.5
-
     )
 
 
@@ -978,7 +1202,7 @@ def make_chart(
     )
 
 
-    # 결과화면은 더 작게
+    # 모바일 최적화
     chart_height = (
 
         225
@@ -1062,21 +1286,27 @@ def reset_game():
 
 
 # ============================================================
-# 제목 + 작은 초기화
+# 제목 + 오른쪽 끝 초기화
 # ============================================================
 
 title_col, reset_col = st.columns(
     [
         10,
-        0.8,
-    ]
+        0.65,
+    ],
+    gap="small",
 )
 
 
 with title_col:
 
     st.markdown(
-        "### 💰 $1000 챌린지"
+        """
+        <div class="challenge-title">
+            💰 $1000 챌린지
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
 
@@ -1101,7 +1331,7 @@ with reset_col:
 
 
 # ============================================================
-# 종목 / 시간봉
+# 코인 / 시간봉
 # ============================================================
 
 top1, top2 = (
@@ -1146,7 +1376,7 @@ with top2:
 
 
 # ============================================================
-# 데이터
+# Binance
 # ============================================================
 
 try:
@@ -1168,7 +1398,9 @@ except Exception as e:
 if (
     len(df)
     <
-    LOOKBACK + 10
+    LOOKBACK
+    +
+    10
 ):
 
     st.error(
@@ -1179,7 +1411,7 @@ if (
 
 
 # ============================================================
-# 종목 / 시간봉 변경
+# 설정 변경
 # ============================================================
 
 signature = (
@@ -1213,7 +1445,8 @@ if (
 
 if (
     st.session_state.question_index
-    is None
+    is
+    None
 ):
 
     new_question(df)
@@ -1225,7 +1458,7 @@ past, next_candle = (
 
 
 # ============================================================
-# 결과 상태라면 PnL 먼저 계산
+# 결과 상태라면 손익 계산
 # ============================================================
 
 result = None
@@ -1246,7 +1479,11 @@ if st.session_state.revealed:
     )
 
 
-    if trade_key not in st.session_state:
+    if (
+        trade_key
+        not in
+        st.session_state
+    ):
 
 
         st.session_state[
@@ -1263,7 +1500,9 @@ if st.session_state.revealed:
             st.session_state.total += 1
 
 
-            if result["correct"]:
+            if (
+                result["correct"]
+            ):
 
                 st.session_state.correct += 1
 
@@ -1299,14 +1538,16 @@ if st.session_state.revealed:
         )
 
 
-        # 최대 손실 = 투자한 증거금
+        # 최대 손실 = 투자금
         pnl = max(
             -margin,
             pnl,
         )
 
 
-        st.session_state.last_pnl = pnl
+        st.session_state.last_pnl = (
+            pnl
+        )
 
 
         st.session_state.balance = max(
@@ -1325,7 +1566,11 @@ if st.session_state.revealed:
 # 성적
 # ============================================================
 
-if st.session_state.total > 0:
+if (
+    st.session_state.total
+    >
+    0
+):
 
     accuracy = (
 
@@ -1391,10 +1636,15 @@ total_pnl = (
 
 
 total_return = (
+
     total_pnl
+
     /
+
     INITIAL_CAPITAL
+
     *
+
     100
 )
 
@@ -1437,11 +1687,14 @@ with asset4:
 
 
 # ============================================================
-# 투자설정
+# 투자 설정
 # 결과 화면에서는 숨김
 # ============================================================
 
-if not st.session_state.revealed:
+if (
+    not
+    st.session_state.revealed
+):
 
 
     with st.container(
@@ -1449,16 +1702,20 @@ if not st.session_state.revealed:
     ):
 
 
-        minus_col, slider_col, plus_col, amount_col, lev_col = (
-            st.columns(
-                [
-                    0.58,
-                    2.90,
-                    0.58,
-                    1.30,
-                    0.64,
-                ]
-            )
+        (
+            minus_col,
+            slider_col,
+            plus_col,
+            amount_col,
+            lev_col,
+        ) = st.columns(
+            [
+                0.58,
+                2.90,
+                0.58,
+                1.30,
+                0.64,
+            ]
         )
 
 
@@ -1475,7 +1732,8 @@ if not st.session_state.revealed:
                 st.button(
                     "−5%",
 
-                    use_container_width=True,
+                    use_container_width=
+                    True,
 
                     key=
                     "pct_minus",
@@ -1488,7 +1746,7 @@ if not st.session_state.revealed:
 
 
         # ----------------------------------------------------
-        # Slider
+        # 투자 비중
         # ----------------------------------------------------
 
         with slider_col:
@@ -1496,11 +1754,14 @@ if not st.session_state.revealed:
             st.slider(
                 "투자 비중",
 
-                min_value=5,
+                min_value=
+                5,
 
-                max_value=100,
+                max_value=
+                100,
 
-                step=5,
+                step=
+                5,
 
                 key=
                 "position_slider",
@@ -1526,7 +1787,8 @@ if not st.session_state.revealed:
                 st.button(
                     "+5%",
 
-                    use_container_width=True,
+                    use_container_width=
+                    True,
 
                     key=
                     "pct_plus",
@@ -1539,11 +1801,13 @@ if not st.session_state.revealed:
 
 
         # ----------------------------------------------------
-        # 직접 투자금
+        # 투자금 직접 입력
         # ----------------------------------------------------
 
         investment_key = (
+
             f"investment_number_"
+
             f"{st.session_state.question_id}"
         )
 
@@ -1569,16 +1833,19 @@ if not st.session_state.revealed:
             st.number_input(
                 "투자금",
 
-                min_value=0.0,
+                min_value=
+                0.0,
 
-                max_value=max(
+                max_value=
+                max(
                     0.0,
                     float(
                         st.session_state.balance
                     ),
                 ),
 
-                step=10.0,
+                step=
+                10.0,
 
                 format=
                 "%.2f",
@@ -1634,7 +1901,10 @@ if not st.session_state.revealed:
 # 포지션 규모
 # ============================================================
 
-if not st.session_state.revealed:
+if (
+    not
+    st.session_state.revealed
+):
 
     display_margin = min(
 
@@ -1646,6 +1916,7 @@ if not st.session_state.revealed:
     display_leverage = (
         st.session_state.leverage
     )
+
 
 else:
 
@@ -1659,21 +1930,27 @@ else:
 
 
 position_value = (
+
     display_margin
+
     *
+
     display_leverage
 )
 
 
 st.caption(
+
     f"포지션 규모 **${position_value:,.2f}**"
+
     f" · 투자금 ${display_margin:,.2f}"
+
     f" · {display_leverage}x"
 )
 
 
 # ============================================================
-# 표시 봉
+# 봉 선택
 # ============================================================
 
 zoom1, zoom2, zoom3 = (
@@ -1700,6 +1977,7 @@ with zoom1:
 
                 key="z25_on",
             )
+
 
     else:
 
@@ -1736,6 +2014,7 @@ with zoom2:
                 key="z50_on",
             )
 
+
     else:
 
         if st.button(
@@ -1771,6 +2050,7 @@ with zoom3:
                 key="z100_on",
             )
 
+
     else:
 
         if st.button(
@@ -1790,7 +2070,10 @@ with zoom3:
 # 문제 화면
 # ============================================================
 
-if not st.session_state.revealed:
+if (
+    not
+    st.session_state.revealed
+):
 
 
     st.plotly_chart(
@@ -1813,7 +2096,7 @@ if not st.session_state.revealed:
 
 
     # ========================================================
-    # 현재 가격 / 직전 봉
+    # 현재가격 / 직전봉
     # ========================================================
 
     last_close = float(
@@ -1894,7 +2177,9 @@ if not st.session_state.revealed:
                 key="up_button",
             ):
 
-                st.session_state.choice = "UP"
+                st.session_state.choice = (
+                    "UP"
+                )
 
                 st.session_state.trade_margin = (
                     min(
@@ -1928,7 +2213,9 @@ if not st.session_state.revealed:
                 key="down_button",
             ):
 
-                st.session_state.choice = "DOWN"
+                st.session_state.choice = (
+                    "DOWN"
+                )
 
                 st.session_state.trade_margin = (
                     min(
@@ -1948,7 +2235,7 @@ if not st.session_state.revealed:
                 st.rerun()
 
 
-    # Streamlit 하단 UI와 버튼이 겹치지 않도록
+    # 하단 Streamlit UI 회피
     st.markdown(
         '<div class="bottom-safe-area"></div>',
 
@@ -1989,20 +2276,30 @@ else:
 
 
     # ========================================================
-    # 결과 내용
+    # 결과
     # ========================================================
 
-    if result["answer"] == "UP":
+    if (
+        result["answer"]
+        ==
+        "UP"
+    ):
 
         result_text = (
             "⬆️ 상승"
         )
 
-    elif result["answer"] == "DOWN":
+
+    elif (
+        result["answer"]
+        ==
+        "DOWN"
+    ):
 
         result_text = (
             "⬇️ 하락"
         )
+
 
     else:
 
@@ -2020,7 +2317,6 @@ else:
 
         st.metric(
             "결과",
-
             result_text,
         )
 
@@ -2044,8 +2340,8 @@ else:
 
 
     # ========================================================
-    # 정답 / 오답 + 다음 문제
-    # 맨 아래
+    # 맨 아래:
+    # 정답 / 오답 + 다음
     # ========================================================
 
     result_col, next_col = (
@@ -2072,7 +2368,9 @@ else:
             )
 
 
-        elif result["correct"]:
+        elif (
+            result["correct"]
+        ):
 
             st.success(
                 f"✅ 정답 · "
@@ -2108,7 +2406,7 @@ else:
                 st.rerun()
 
 
-    # Streamlit 하단 UI 회피
+    # 모바일 하단 안전공간
     st.markdown(
         '<div class="bottom-safe-area"></div>',
 
