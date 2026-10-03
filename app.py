@@ -1634,6 +1634,21 @@ else:
     # 다음 문제
     # ========================================================
 
+    # if st.button(
+    #     "➡️ 다음 문제",
+    #     use_container_width=True,
+    #     key="next_question",
+    # ):
+
+    #     new_question(df)
+
+    #     # number_input도 현재 투자금으로 동기화
+    #     st.session_state.investment_number = (
+    #         st.session_state.investment_amount
+    #     )
+
+    #     st.rerun()
+
     if st.button(
         "➡️ 다음 문제",
         use_container_width=True,
@@ -1642,13 +1657,7 @@ else:
 
         new_question(df)
 
-        # number_input도 현재 투자금으로 동기화
-        st.session_state.investment_number = (
-            st.session_state.investment_amount
-        )
-
         st.rerun()
-
 
 # ============================================================
 # 게임 초기화
