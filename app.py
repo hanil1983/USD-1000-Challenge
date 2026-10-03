@@ -22,8 +22,6 @@ st.set_page_config(
 
 LOOKBACK = 100
 INITIAL_CAPITAL = 1000.0
-
-# 1센트 미만이면 파산 처리
 BANKRUPT_THRESHOLD = 0.01
 
 
@@ -42,9 +40,9 @@ st.markdown(
     }
 
 
-    /* ========================================================
+    /* --------------------------------------------------------
        Streamlit 기본 UI 제거
-       ======================================================== */
+       -------------------------------------------------------- */
 
     header[data-testid="stHeader"] {
         display: none !important;
@@ -63,9 +61,9 @@ st.markdown(
     }
 
 
-    /* ========================================================
+    /* --------------------------------------------------------
        전체 화면
-       ======================================================== */
+       -------------------------------------------------------- */
 
     .block-container {
         max-width: 760px;
@@ -77,7 +75,7 @@ st.markdown(
     }
 
     div[data-testid="stVerticalBlock"] {
-        gap: 0.12rem !important;
+        gap: 0.16rem !important;
     }
 
     div[data-testid="stHorizontalBlock"] {
@@ -92,9 +90,9 @@ st.markdown(
     }
 
 
-    /* ========================================================
+    /* --------------------------------------------------------
        제목
-       ======================================================== */
+       -------------------------------------------------------- */
 
     h3 {
         font-size: 1.6rem !important;
@@ -109,9 +107,9 @@ st.markdown(
     }
 
 
-    /* ========================================================
+    /* --------------------------------------------------------
        초기화 버튼
-       ======================================================== */
+       -------------------------------------------------------- */
 
     .st-key-reset_top {
         width: 100% !important;
@@ -135,8 +133,8 @@ st.markdown(
         justify-content: center !important;
         align-items: center !important;
 
-        padding: 0 !important;
         margin: 0 !important;
+        padding: 0 !important;
 
         font-size: 0.75rem !important;
         font-weight: 650 !important;
@@ -147,9 +145,9 @@ st.markdown(
     }
 
 
-    /* ========================================================
+    /* --------------------------------------------------------
        Metric
-       ======================================================== */
+       -------------------------------------------------------- */
 
     div[data-testid="stMetric"] {
         min-height: 45px !important;
@@ -162,7 +160,7 @@ st.markdown(
 
         text-align: center !important;
 
-        background: rgba(120, 120, 120, 0.07);
+        background: rgba(120,120,120,0.07);
 
         padding: 3px 2px !important;
 
@@ -173,6 +171,7 @@ st.markdown(
         width: 100% !important;
 
         display: flex !important;
+
         justify-content: center !important;
 
         text-align: center !important;
@@ -210,19 +209,20 @@ st.markdown(
         width: 100% !important;
 
         display: flex !important;
+
         justify-content: center !important;
 
         font-size: var(--label-size) !important;
     }
 
 
-    /* ========================================================
+    /* --------------------------------------------------------
        일반 버튼
-       ======================================================== */
+       -------------------------------------------------------- */
 
     .stButton > button {
-        min-height: 35px !important;
         height: 35px !important;
+        min-height: 35px !important;
 
         display: flex !important;
 
@@ -242,9 +242,9 @@ st.markdown(
     }
 
 
-    /* ========================================================
-       투자 설정 행
-       ======================================================== */
+    /* --------------------------------------------------------
+       투자 설정
+       -------------------------------------------------------- */
 
     .st-key-trade_controls
     div[data-testid="stHorizontalBlock"] {
@@ -252,7 +252,6 @@ st.markdown(
     }
 
 
-    /* -5 / +5 */
     .st-key-pct_minus_wrap,
     .st-key-pct_plus_wrap {
         padding-top: 18px !important;
@@ -265,8 +264,8 @@ st.markdown(
 
         display: flex !important;
 
-        justify-content: center !important;
         align-items: center !important;
+        justify-content: center !important;
 
         font-size: 0.76rem !important;
 
@@ -274,9 +273,9 @@ st.markdown(
     }
 
 
-    /* ========================================================
-       Widget 라벨
-       ======================================================== */
+    /* --------------------------------------------------------
+       Widget label
+       -------------------------------------------------------- */
 
     label[data-testid="stWidgetLabel"] {
         width: 100% !important;
@@ -298,9 +297,9 @@ st.markdown(
     }
 
 
-    /* ========================================================
-       투자금 입력
-       ======================================================== */
+    /* --------------------------------------------------------
+       투자금 input
+       -------------------------------------------------------- */
 
     div[data-testid="stNumberInput"] input {
         height: 35px !important;
@@ -316,22 +315,22 @@ st.markdown(
     }
 
 
-    /* ========================================================
+    /* --------------------------------------------------------
        Selectbox
-       ======================================================== */
+       -------------------------------------------------------- */
 
     div[data-baseweb="select"] {
         min-height: 35px !important;
     }
 
     div[data-baseweb="select"] > div {
-        min-height: 35px !important;
         height: 35px !important;
+        min-height: 35px !important;
+
+        text-align: center !important;
 
         font-size: var(--value-size) !important;
         font-weight: 600 !important;
-
-        text-align: center !important;
     }
 
     div[data-baseweb="select"] span {
@@ -340,9 +339,9 @@ st.markdown(
     }
 
 
-    /* ========================================================
+    /* --------------------------------------------------------
        Slider
-       ======================================================== */
+       -------------------------------------------------------- */
 
     div[data-testid="stSlider"] {
         padding-top: 0 !important;
@@ -360,9 +359,9 @@ st.markdown(
     }
 
 
-    /* ========================================================
+    /* --------------------------------------------------------
        선택된 봉
-       ======================================================== */
+       -------------------------------------------------------- */
 
     .st-key-zoom_selected button {
         background-color: #111111 !important;
@@ -373,9 +372,9 @@ st.markdown(
     }
 
 
-    /* ========================================================
+    /* --------------------------------------------------------
        상승
-       ======================================================== */
+       -------------------------------------------------------- */
 
     .st-key-up_area button {
         background-color: #16a34a !important;
@@ -390,9 +389,9 @@ st.markdown(
     }
 
 
-    /* ========================================================
+    /* --------------------------------------------------------
        하락
-       ======================================================== */
+       -------------------------------------------------------- */
 
     .st-key-down_area button {
         background-color: #dc2626 !important;
@@ -408,95 +407,170 @@ st.markdown(
 
 
     /* ========================================================
-       결과 메시지 + 다음 버튼
-       동일 높이 / 가로 정렬
+       결과 + 다음
+
+       Alert를 사용하지 않고 둘 다 button 사용
+       → 높이 완전히 동일
        ======================================================== */
+
+    .st-key-result_action_row {
+        margin-top: 7px !important;
+        margin-bottom: 2px !important;
+    }
 
     .st-key-result_action_row
     div[data-testid="stHorizontalBlock"] {
         align-items: stretch !important;
+
+        gap: 0.25rem !important;
     }
 
 
-    .st-key-result_message {
-        height: 38px !important;
-    }
-
-    .st-key-result_message
-    div[data-testid="stAlert"] {
-        height: 38px !important;
-        min-height: 38px !important;
-
-        box-sizing: border-box !important;
-
-        display: flex !important;
-
-        justify-content: center !important;
-        align-items: center !important;
-
-        padding: 0 0.45rem !important;
-        margin: 0 !important;
-
-        text-align: center !important;
-    }
-
-    .st-key-result_message
-    div[data-testid="stAlert"] p {
+    /* 정답 결과 버튼 */
+    .st-key-result_correct button {
         width: 100% !important;
 
-        margin: 0 !important;
-
-        text-align: center !important;
-
-        font-size: 0.82rem !important;
-        font-weight: 600 !important;
-
-        line-height: 1 !important;
-    }
-
-
-    .st-key-next_area {
-        height: 38px !important;
-    }
-
-    .st-key-next_area button {
-        width: 100% !important;
-
-        height: 38px !important;
-        min-height: 38px !important;
+        height: 40px !important;
+        min-height: 40px !important;
 
         margin: 0 !important;
         padding: 0 !important;
 
         display: flex !important;
 
-        align-items: center !important;
         justify-content: center !important;
+        align-items: center !important;
+
+        background-color: #dcfce7 !important;
+
+        color: #166534 !important;
+
+        border: 1px solid #86efac !important;
+
+        border-radius: 8px !important;
+
+        font-size: 0.82rem !important;
+        font-weight: 650 !important;
+
+        opacity: 1 !important;
+    }
+
+
+    /* 오답 결과 버튼 */
+    .st-key-result_wrong button {
+        width: 100% !important;
+
+        height: 40px !important;
+        min-height: 40px !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        display: flex !important;
+
+        justify-content: center !important;
+        align-items: center !important;
+
+        background-color: #fee2e2 !important;
+
+        color: #991b1b !important;
+
+        border: 1px solid #fca5a5 !important;
+
+        border-radius: 8px !important;
+
+        font-size: 0.82rem !important;
+        font-weight: 650 !important;
+
+        opacity: 1 !important;
+    }
+
+
+    /* DOJI */
+    .st-key-result_doji button {
+        width: 100% !important;
+
+        height: 40px !important;
+        min-height: 40px !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        display: flex !important;
+
+        justify-content: center !important;
+        align-items: center !important;
+
+        background-color: #f3f4f6 !important;
+
+        color: #374151 !important;
+
+        border: 1px solid #d1d5db !important;
+
+        border-radius: 8px !important;
+
+        font-size: 0.82rem !important;
+        font-weight: 650 !important;
+
+        opacity: 1 !important;
+    }
+
+
+    /* disabled 버튼도 글씨 흐리게 만들지 않기 */
+    .st-key-result_correct button:disabled,
+    .st-key-result_wrong button:disabled,
+    .st-key-result_doji button:disabled {
+        opacity: 1 !important;
+
+        cursor: default !important;
+
+        pointer-events: none !important;
+    }
+
+
+    /* 다음 */
+    .st-key-next_area {
+        height: 40px !important;
+    }
+
+    .st-key-next_area button {
+        width: 100% !important;
+
+        height: 40px !important;
+        min-height: 40px !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        display: flex !important;
+
+        justify-content: center !important;
+        align-items: center !important;
 
         background-color: #111111 !important;
 
         color: white !important;
 
-        border-color: #111111 !important;
+        border: 1px solid #111111 !important;
+
+        border-radius: 8px !important;
 
         font-size: 0.82rem !important;
         font-weight: 650 !important;
     }
 
 
-    /* ========================================================
+    /* --------------------------------------------------------
        일반 Alert
-       ======================================================== */
+       -------------------------------------------------------- */
 
     div[data-testid="stAlert"] {
-        padding: 0.25rem 0.40rem !important;
+        padding: 0.35rem 0.40rem !important;
 
-        margin: 0 !important;
+        margin-top: 4px !important;
+        margin-bottom: 4px !important;
 
         text-align: center !important;
-
-        font-size: 0.82rem !important;
-        font-weight: 600 !important;
     }
 
     div[data-testid="stAlert"] p {
@@ -505,12 +579,15 @@ st.markdown(
         text-align: center !important;
 
         margin: 0 !important;
+
+        font-size: 0.82rem !important;
+        font-weight: 600 !important;
     }
 
 
-    /* ========================================================
+    /* --------------------------------------------------------
        재도전
-       ======================================================== */
+       -------------------------------------------------------- */
 
     .st-key-retry_area button {
         height: 42px !important;
@@ -526,9 +603,9 @@ st.markdown(
     }
 
 
-    /* ========================================================
+    /* --------------------------------------------------------
        Plotly
-       ======================================================== */
+       -------------------------------------------------------- */
 
     div[data-testid="stPlotlyChart"] {
         margin-top: 0 !important;
@@ -536,9 +613,9 @@ st.markdown(
     }
 
 
-    /* ========================================================
+    /* --------------------------------------------------------
        모바일 하단 안전공간
-       ======================================================== */
+       -------------------------------------------------------- */
 
     .bottom-safe-area {
         height: calc(
@@ -578,7 +655,7 @@ def format_price(value):
 
 
 # ============================================================
-# Binance 데이터
+# Binance
 # ============================================================
 
 @st.cache_data(ttl=600)
@@ -705,7 +782,7 @@ for key, value in defaults.items():
 
 
 # ============================================================
-# Widget Keys
+# Widget keys
 # ============================================================
 
 def current_slider_key():
@@ -750,13 +827,13 @@ def sync_from_slider(widget_key):
 
     amount = (
         st.session_state.balance
-        *
-        pct
-        /
-        100
+        * pct
+        / 100
     )
 
-    st.session_state.investment_amount = amount
+    st.session_state.investment_amount = (
+        amount
+    )
 
     investment_key = (
         current_investment_key()
@@ -773,8 +850,7 @@ def adjust_position(delta):
 
     new_pct = (
         st.session_state.position_pct
-        +
-        delta
+        + delta
     )
 
     new_pct = max(
@@ -795,13 +871,13 @@ def adjust_position(delta):
 
     amount = (
         st.session_state.balance
-        *
-        new_pct
-        /
-        100
+        * new_pct
+        / 100
     )
 
-    st.session_state.investment_amount = amount
+    st.session_state.investment_amount = (
+        amount
+    )
 
     slider_key = (
         current_slider_key()
@@ -842,7 +918,9 @@ def sync_from_amount(widget_key):
         ),
     )
 
-    st.session_state.investment_amount = amount
+    st.session_state.investment_amount = (
+        amount
+    )
 
     st.session_state.investment_mode = (
         "amount"
@@ -854,21 +932,16 @@ def sync_from_amount(widget_key):
 
     exact_pct = (
         amount
-        /
-        balance
-        *
-        100
+        / balance
+        * 100
     )
 
 
     slider_pct = (
         round(
-            exact_pct
-            /
-            5
+            exact_pct / 5
         )
-        *
-        5
+        * 5
     )
 
 
@@ -881,7 +954,9 @@ def sync_from_amount(widget_key):
     )
 
 
-    st.session_state.position_pct = slider_pct
+    st.session_state.position_pct = (
+        slider_pct
+    )
 
 
     slider_key = (
@@ -912,8 +987,7 @@ def choose_question_index(df):
 
     maximum = (
         len(df)
-        -
-        2
+        - 2
     )
 
     if maximum <= minimum:
@@ -1006,10 +1080,8 @@ def evaluate_next_candle(
 
     price_return = (
         close_price
-        /
-        open_price
-        -
-        1
+        / open_price
+        - 1
     ) * 100
 
 
@@ -1041,9 +1113,11 @@ def evaluate_next_candle(
 
     return {
 
-        "open": open_price,
+        "open":
+        open_price,
 
-        "close": close_price,
+        "close":
+        close_price,
 
         "price_return":
         price_return,
@@ -1135,7 +1209,6 @@ def make_chart(
     )
 
 
-    # 가격
     fig.add_trace(
         go.Candlestick(
 
@@ -1171,7 +1244,6 @@ def make_chart(
     )
 
 
-    # 거래량
     volume_colors = np.where(
 
         combined["Close"]
@@ -1179,14 +1251,12 @@ def make_chart(
         combined["Open"],
 
         "#26a69a",
-
         "#ef5350",
     )
 
 
     fig.add_trace(
         go.Bar(
-
             x=x,
 
             y=
@@ -1201,7 +1271,6 @@ def make_chart(
     )
 
 
-    # 결과 봉 강조
     if next_candle is not None:
 
         fig.add_vrect(
@@ -1296,7 +1365,7 @@ def make_chart(
 
 
 # ============================================================
-# 게임 초기화
+# 초기화
 # ============================================================
 
 def reset_game():
@@ -1337,7 +1406,7 @@ def reset_game():
 
 
 # ============================================================
-# 제목 + 초기화
+# 제목
 # ============================================================
 
 title_col, reset_col = st.columns(
@@ -1364,9 +1433,6 @@ with reset_col:
 
         st.button(
             "↻ 초기화",
-
-            help=
-            "게임 초기화",
 
             key=
             "reset_game_top",
@@ -1452,7 +1518,7 @@ if len(df) < LOOKBACK + 10:
 
 
 # ============================================================
-# 종목 / 시간봉 변경
+# 설정 변경
 # ============================================================
 
 signature = (
@@ -1462,8 +1528,7 @@ signature = (
 
 if (
     "question_signature"
-    not in
-    st.session_state
+    not in st.session_state
 ):
 
     st.session_state.question_signature = (
@@ -1473,8 +1538,7 @@ if (
 
 if (
     st.session_state.question_signature
-    !=
-    signature
+    != signature
 ):
 
     st.session_state.question_signature = (
@@ -1484,10 +1548,7 @@ if (
     new_question(df)
 
 
-if (
-    st.session_state.question_index
-    is None
-):
+if st.session_state.question_index is None:
 
     new_question(df)
 
@@ -1498,7 +1559,7 @@ past, next_candle = (
 
 
 # ============================================================
-# 결과 상태면 손익 계산
+# 결과 손익
 # ============================================================
 
 result = None
@@ -1559,7 +1620,6 @@ if st.session_state.revealed:
         )
 
 
-        # 최대 손실 = 투자금
         pnl = max(
             -margin,
             pnl,
@@ -1590,7 +1650,7 @@ if st.session_state.revealed:
 
 
 # ============================================================
-# 파산 여부
+# 파산
 # ============================================================
 
 bankrupt = (
@@ -1619,12 +1679,10 @@ else:
     accuracy = 0
 
 
-score1, score2, score3 = (
-    st.columns(3)
-)
+s1, s2, s3 = st.columns(3)
 
 
-with score1:
+with s1:
 
     st.metric(
         "문제",
@@ -1632,7 +1690,7 @@ with score1:
     )
 
 
-with score2:
+with s2:
 
     st.metric(
         "정답",
@@ -1640,7 +1698,7 @@ with score2:
     )
 
 
-with score3:
+with s3:
 
     st.metric(
         "정답률",
@@ -1656,13 +1714,11 @@ balance = (
     st.session_state.balance
 )
 
-
 total_pnl = (
     balance
     -
     INITIAL_CAPITAL
 )
-
 
 total_return = (
     total_pnl
@@ -1673,12 +1729,12 @@ total_return = (
 )
 
 
-asset1, asset2, asset3, asset4 = (
+a1, a2, a3, a4 = (
     st.columns(4)
 )
 
 
-with asset1:
+with a1:
 
     st.metric(
         "원금",
@@ -1686,7 +1742,7 @@ with asset1:
     )
 
 
-with asset2:
+with a2:
 
     st.metric(
         "현재자산",
@@ -1694,7 +1750,7 @@ with asset2:
     )
 
 
-with asset3:
+with a3:
 
     st.metric(
         "누적손익",
@@ -1702,7 +1758,7 @@ with asset3:
     )
 
 
-with asset4:
+with a4:
 
     st.metric(
         "수익률",
@@ -1720,18 +1776,9 @@ if (
     not bankrupt
 ):
 
-
-    slider_key = (
-        current_slider_key()
-    )
-
-    investment_key = (
-        current_investment_key()
-    )
-
-    leverage_key = (
-        current_leverage_key()
-    )
+    slider_key = current_slider_key()
+    investment_key = current_investment_key()
+    leverage_key = current_leverage_key()
 
 
     if slider_key not in st.session_state:
@@ -1766,7 +1813,6 @@ if (
         key="trade_controls"
     ):
 
-
         (
             minus_col,
             slider_col,
@@ -1796,7 +1842,7 @@ if (
                     use_container_width=True,
 
                     key=
-                    f"pct_minus_"
+                    f"minus_"
                     f"{st.session_state.question_id}",
 
                     on_click=
@@ -1812,7 +1858,6 @@ if (
                 "투자 비중",
 
                 min_value=5,
-
                 max_value=100,
 
                 step=5,
@@ -1842,7 +1887,7 @@ if (
                     use_container_width=True,
 
                     key=
-                    f"pct_plus_"
+                    f"plus_"
                     f"{st.session_state.question_id}",
 
                     on_click=
@@ -1861,7 +1906,6 @@ if (
 
                 max_value=max(
                     0.0,
-
                     float(
                         st.session_state.balance
                     ),
@@ -1922,7 +1966,6 @@ if (
 
 if not bankrupt:
 
-
     if not st.session_state.revealed:
 
         display_margin = min(
@@ -1952,12 +1995,12 @@ if not bankrupt:
     )
 
 
-    position1, position2, position3 = (
+    p1, p2, p3 = (
         st.columns(3)
     )
 
 
-    with position1:
+    with p1:
 
         st.metric(
             "포지션",
@@ -1965,7 +2008,7 @@ if not bankrupt:
         )
 
 
-    with position2:
+    with p2:
 
         st.metric(
             "투자금",
@@ -1973,7 +2016,7 @@ if not bankrupt:
         )
 
 
-    with position3:
+    with p3:
 
         st.metric(
             "레버리지",
@@ -1987,13 +2030,12 @@ if not bankrupt:
 
 if not bankrupt:
 
-
-    zoom1, zoom2, zoom3 = (
+    z1, z2, z3 = (
         st.columns(3)
     )
 
 
-    with zoom1:
+    with z1:
 
         if st.session_state.visible_bars == 25:
 
@@ -2004,7 +2046,7 @@ if not bankrupt:
                 st.button(
                     "25봉",
                     use_container_width=True,
-                    key="z25_on",
+                    key="z25on",
                 )
 
         else:
@@ -2016,11 +2058,10 @@ if not bankrupt:
             ):
 
                 st.session_state.visible_bars = 25
-
                 st.rerun()
 
 
-    with zoom2:
+    with z2:
 
         if st.session_state.visible_bars == 50:
 
@@ -2031,7 +2072,7 @@ if not bankrupt:
                 st.button(
                     "50봉",
                     use_container_width=True,
-                    key="z50_on",
+                    key="z50on",
                 )
 
         else:
@@ -2043,11 +2084,10 @@ if not bankrupt:
             ):
 
                 st.session_state.visible_bars = 50
-
                 st.rerun()
 
 
-    with zoom3:
+    with z3:
 
         if st.session_state.visible_bars == 100:
 
@@ -2058,7 +2098,7 @@ if not bankrupt:
                 st.button(
                     "100봉",
                     use_container_width=True,
-                    key="z100_on",
+                    key="z100on",
                 )
 
         else:
@@ -2070,7 +2110,6 @@ if not bankrupt:
             ):
 
                 st.session_state.visible_bars = 100
-
                 st.rerun()
 
 
@@ -2083,7 +2122,6 @@ if (
     and
     not bankrupt
 ):
-
 
     st.plotly_chart(
         make_chart(
@@ -2126,12 +2164,10 @@ if (
     ) * 100
 
 
-    info1, info2 = (
-        st.columns(2)
-    )
+    i1, i2 = st.columns(2)
 
 
-    with info1:
+    with i1:
 
         st.metric(
             "현재 가격",
@@ -2141,7 +2177,7 @@ if (
         )
 
 
-    with info2:
+    with i2:
 
         st.metric(
             "직전 봉",
@@ -2149,7 +2185,6 @@ if (
         )
 
 
-    # 상승 / 하락
     up_col, down_col = (
         st.columns(2)
     )
@@ -2169,9 +2204,7 @@ if (
                 key="up_button",
             ):
 
-                st.session_state.choice = (
-                    "UP"
-                )
+                st.session_state.choice = "UP"
 
                 st.session_state.trade_margin = min(
                     st.session_state.investment_amount,
@@ -2201,9 +2234,7 @@ if (
                 key="down_button",
             ):
 
-                st.session_state.choice = (
-                    "DOWN"
-                )
+                st.session_state.choice = "DOWN"
 
                 st.session_state.trade_margin = min(
                     st.session_state.investment_amount,
@@ -2231,7 +2262,6 @@ if (
 
 elif st.session_state.revealed:
 
-
     st.plotly_chart(
         make_chart(
             past,
@@ -2251,22 +2281,13 @@ elif st.session_state.revealed:
 
 
     if result["answer"] == "UP":
-
-        result_text = (
-            "⬆️ 상승"
-        )
+        result_text = "⬆️ 상승"
 
     elif result["answer"] == "DOWN":
-
-        result_text = (
-            "⬇️ 하락"
-        )
+        result_text = "⬇️ 하락"
 
     else:
-
-        result_text = (
-            "➖ DOJI"
-        )
+        result_text = "➖ DOJI"
 
 
     r1, r2, r3 = (
@@ -2309,12 +2330,12 @@ elif st.session_state.revealed:
         )
 
 
-        final1, final2, final3 = (
+        f1, f2, f3 = (
             st.columns(3)
         )
 
 
-        with final1:
+        with f1:
 
             st.metric(
                 "최종 자산",
@@ -2322,7 +2343,7 @@ elif st.session_state.revealed:
             )
 
 
-        with final2:
+        with f2:
 
             st.metric(
                 "최종 수익률",
@@ -2330,7 +2351,7 @@ elif st.session_state.revealed:
             )
 
 
-        with final3:
+        with f3:
 
             st.metric(
                 "정답률",
@@ -2354,16 +2375,14 @@ elif st.session_state.revealed:
 
 
     # ========================================================
-    # 일반 결과
+    # 정상 결과
     # ========================================================
 
     else:
 
-
         with st.container(
             key="result_action_row"
         ):
-
 
             result_col, next_col = (
                 st.columns(
@@ -2377,41 +2396,70 @@ elif st.session_state.revealed:
             )
 
 
-            # 정답 / 오답
+            # ----------------------------------------------
+            # 결과칸도 버튼으로 만듦
+            # 다음 버튼과 완전히 동일한 구조
+            # ----------------------------------------------
+
             with result_col:
 
-                with st.container(
-                    key="result_message"
-                ):
+                if result["answer"] == "DOJI":
 
-                    if (
-                        result["answer"]
-                        ==
-                        "DOJI"
+                    with st.container(
+                        key="result_doji"
                     ):
 
-                        st.warning(
-                            "➖ DOJI · 점수 제외"
+                        st.button(
+                            "➖ DOJI · 점수 제외",
+
+                            use_container_width=True,
+
+                            disabled=True,
+
+                            key="result_doji_button",
                         )
 
 
-                    elif result["correct"]:
+                elif result["correct"]:
 
-                        st.success(
+                    with st.container(
+                        key="result_correct"
+                    ):
+
+                        st.button(
                             f"✅ 정답 · "
-                            f"${st.session_state.last_pnl:+,.2f}"
+                            f"${st.session_state.last_pnl:+,.2f}",
+
+                            use_container_width=True,
+
+                            disabled=True,
+
+                            key="result_correct_button",
                         )
 
 
-                    else:
+                else:
 
-                        st.error(
+                    with st.container(
+                        key="result_wrong"
+                    ):
+
+                        st.button(
                             f"❌ 오답 · "
-                            f"${st.session_state.last_pnl:+,.2f}"
+                            f"${st.session_state.last_pnl:+,.2f}",
+
+                            use_container_width=True,
+
+                            disabled=True,
+
+                            key="result_wrong_button",
                         )
 
 
+            # ----------------------------------------------
             # 다음
+            # ----------------------------------------------
+
             with next_col:
 
                 with st.container(
@@ -2438,23 +2486,22 @@ elif st.session_state.revealed:
 
 
 # ============================================================
-# reload 시 이미 파산 상태인 경우
+# reload 후 이미 파산
 # ============================================================
 
 elif bankrupt:
-
 
     st.error(
         "💥 파산 · $1000 챌린지 종료"
     )
 
 
-    final1, final2, final3 = (
+    f1, f2, f3 = (
         st.columns(3)
     )
 
 
-    with final1:
+    with f1:
 
         st.metric(
             "최종 자산",
@@ -2462,7 +2509,7 @@ elif bankrupt:
         )
 
 
-    with final2:
+    with f2:
 
         st.metric(
             "최종 수익률",
@@ -2470,7 +2517,7 @@ elif bankrupt:
         )
 
 
-    with final3:
+    with f3:
 
         st.metric(
             "정답률",
