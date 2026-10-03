@@ -28,30 +28,50 @@ LOOKBACK = 100
 st.markdown(
     """
     <style>
+
     .block-container {
         max-width: 700px;
-        padding-top: 1rem;
-        padding-left: 0.7rem;
-        padding-right: 0.7rem;
-        padding-bottom: 2rem;
+        padding-top: 0.25rem;
+        padding-left: 0.45rem;
+        padding-right: 0.45rem;
+        padding-bottom: 0.5rem;
     }
 
     h1 {
-        font-size: 1.8rem !important;
+        font-size: 1.4rem !important;
         text-align: center;
+        margin-top: 0rem !important;
+        margin-bottom: 0rem !important;
+    }
+
+    h3 {
+        margin-top: 0.3rem !important;
+        margin-bottom: 0.2rem !important;
     }
 
     .stButton > button {
-        height: 60px;
-        font-size: 1.15rem;
+        height: 46px;
+        font-size: 1rem;
         font-weight: 700;
-        border-radius: 12px;
+        border-radius: 10px;
     }
 
     [data-testid="stMetric"] {
-        background-color: rgba(128,128,128,0.08);
-        padding: 10px;
-        border-radius: 10px;
+        background-color: rgba(128,128,128,0.07);
+        padding: 3px 6px;
+        border-radius: 8px;
+    }
+
+    [data-testid="stMetricLabel"] {
+        font-size: 0.8rem;
+    }
+
+    [data-testid="stMetricValue"] {
+        font-size: 1.15rem;
+    }
+
+    div[data-testid="stVerticalBlock"] {
+        gap: 0.35rem;
     }
 
     #MainMenu {
@@ -65,6 +85,7 @@ st.markdown(
     header {
         visibility: hidden;
     }
+
     </style>
     """,
     unsafe_allow_html=True,
@@ -100,7 +121,7 @@ def calculate_rsi(series, period=14):
 
 
 # ============================================================
-# Binance 데이터 다운로드
+# Binance 데이터
 # ============================================================
 
 @st.cache_data(ttl=600)
@@ -182,12 +203,10 @@ def download_data(symbol, timeframe):
         ]
     ]
 
-    # RSI
     df["RSI"] = calculate_rsi(
         df["Close"]
     )
 
-    # EMA
     df["EMA20"] = df["Close"].ewm(
         span=20,
         adjust=False,
@@ -208,7 +227,6 @@ def download_data(symbol, timeframe):
 def choose_question_index(df):
 
     minimum = LOOKBACK
-
     maximum = len(df) - 2
 
     return random.randint(
@@ -261,10 +279,10 @@ def make_quiz_chart(past):
         rows=3,
         cols=1,
         shared_xaxes=True,
-        vertical_spacing=0.03,
+        vertical_spacing=0.02,
         row_heights=[
-            0.65,
-            0.16,
+            0.67,
+            0.14,
             0.19,
         ],
     )
@@ -321,12 +339,12 @@ def make_quiz_chart(past):
     )
 
     fig.update_layout(
-        height=500,
+        height=360,
         margin=dict(
-            l=5,
-            r=5,
-            t=10,
-            b=5,
+            l=0,
+            r=0,
+            t=0,
+            b=0,
         ),
         xaxis_rangeslider_visible=False,
         showlegend=False,
@@ -383,12 +401,12 @@ def make_result_chart(
     )
 
     fig.update_layout(
-        height=380,
+        height=280,
         margin=dict(
-            l=5,
-            r=5,
-            t=10,
-            b=5,
+            l=0,
+            r=0,
+            t=0,
+            b=0,
         ),
         xaxis_rangeslider_visible=False,
         showlegend=False,
@@ -462,23 +480,19 @@ for key, value in defaults.items():
 
 
 # ============================================================
-# 화면
+# 제목
 # ============================================================
 
 st.title("📈 Next Candle Quiz")
-
-st.caption(
-    "Binance 데이터를 사용해 다음 봉의 상승 / 하락을 맞혀보세요."
-)
 
 
 # ============================================================
 # 종목 / 시간봉
 # ============================================================
 
-col1, col2 = st.columns(2)
+top1, top2 = st.columns(2)
 
-with col1:
+with top1:
 
     symbol = st.selectbox(
         "코인",
@@ -489,10 +503,11 @@ with col1:
             "XRPUSDT",
             "BNBUSDT",
         ],
+        label_visibility="collapsed",
     )
 
 
-with col2:
+with top2:
 
     timeframe = st.selectbox(
         "시간봉",
@@ -502,11 +517,12 @@ with col2:
             "4시간",
         ],
         index=1,
+        label_visibility="collapsed",
     )
 
 
 # ============================================================
-# 성적
+# 성적 - 한 줄
 # ============================================================
 
 if st.session_state.total > 0:
@@ -541,24 +557,20 @@ s3.metric(
 
 
 # ============================================================
-# 데이터 다운로드
+# 데이터 로딩
 # ============================================================
 
 try:
 
-    with st.spinner(
-        "Binance 데이터 불러오는 중..."
-    ):
-
-        df = download_data(
-            symbol,
-            timeframe,
-        )
+    df = download_data(
+        symbol,
+        timeframe,
+    )
 
 except Exception as e:
 
     st.error(
-        f"Binance 데이터를 불러오지 못했습니다: {e}"
+        f"데이터 오류: {e}"
     )
 
     st.stop()
@@ -574,7 +586,7 @@ if len(df) < LOOKBACK + 10:
 
 
 # ============================================================
-# 설정 변경 감지
+# 설정 변경
 # ============================================================
 
 signature = (
@@ -613,7 +625,7 @@ if (
 
 
 # ============================================================
-# 현재 문제
+# 문제 데이터
 # ============================================================
 
 past, next_candle = (
@@ -622,14 +634,10 @@ past, next_candle = (
 
 
 # ============================================================
-# 문제
+# 문제 화면
 # ============================================================
 
 if not st.session_state.revealed:
-
-    st.markdown(
-        f"### {symbol} · {timeframe}"
-    )
 
     st.plotly_chart(
         make_quiz_chart(past),
@@ -650,27 +658,22 @@ if not st.session_state.revealed:
     )
 
 
-    i1, i2 = st.columns(2)
+    # 현재가격 + RSI 한 줄
+    info1, info2 = st.columns(2)
 
-    i1.metric(
+    info1.metric(
         "현재 가격",
         f"{last_close:,.2f}",
     )
 
-    i2.metric(
+    info2.metric(
         "RSI",
         f"{current_rsi:.1f}",
     )
 
 
-    st.markdown(
-        "### 다음 봉은?"
-    )
-
-
-    up_col, down_col = (
-        st.columns(2)
-    )
+    # 상승 / 하락 버튼 한 줄
+    up_col, down_col = st.columns(2)
 
 
     with up_col:
@@ -681,13 +684,8 @@ if not st.session_state.revealed:
             type="primary",
         ):
 
-            st.session_state.choice = (
-                "UP"
-            )
-
-            st.session_state.revealed = (
-                True
-            )
+            st.session_state.choice = "UP"
+            st.session_state.revealed = True
 
             st.rerun()
 
@@ -699,13 +697,8 @@ if not st.session_state.revealed:
             use_container_width=True,
         ):
 
-            st.session_state.choice = (
-                "DOWN"
-            )
-
-            st.session_state.revealed = (
-                True
-            )
+            st.session_state.choice = "DOWN"
+            st.session_state.revealed = True
 
             st.rerun()
 
@@ -748,7 +741,7 @@ else:
     if result["answer"] == "DOJI":
 
         st.warning(
-            "➖ DOJI입니다."
+            "➖ DOJI"
         )
 
     elif result["correct"]:
@@ -789,15 +782,22 @@ else:
         result_text = "➖ DOJI"
 
 
-    r1, r2 = st.columns(2)
+    # 결과도 한 줄
+    r1, r2, r3 = st.columns(3)
 
     r1.metric(
-        "실제 결과",
+        "결과",
         result_text,
     )
 
     r2.metric(
-        "등락률",
+        "Open",
+        f"{result['open']:,.2f}",
+    )
+
+    r3.metric(
+        "Close",
+        f"{result['close']:,.2f}",
         f"{result['return']:+.2f}%",
     )
 
@@ -816,8 +816,6 @@ else:
 # ============================================================
 # 점수 초기화
 # ============================================================
-
-st.divider()
 
 if st.button(
     "점수 초기화",
