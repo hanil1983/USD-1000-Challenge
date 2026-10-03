@@ -21,17 +21,17 @@ st.set_page_config(
 )
 
 LOOKBACK = 100
+INITIAL_VISIBLE = 50
 
 
 # ============================================================
-# 모바일 UI 최적화
+# 모바일 UI
 # ============================================================
 
 st.markdown(
     """
     <style>
 
-    /* 전체 화면 */
     .block-container {
         max-width: 700px;
         padding-top: 0.2rem;
@@ -40,7 +40,6 @@ st.markdown(
         padding-bottom: 0.5rem;
     }
 
-    /* 제목 */
     h1 {
         font-size: 1.35rem !important;
         text-align: center;
@@ -48,15 +47,9 @@ st.markdown(
         margin-bottom: 0 !important;
     }
 
-    /* Streamlit 세로 여백 축소 */
     div[data-testid="stVerticalBlock"] {
         gap: 0.3rem !important;
     }
-
-    /* =====================================================
-       핵심:
-       아이폰에서도 st.columns가 세로로 쌓이지 않도록 고정
-       ===================================================== */
 
     div[data-testid="stHorizontalBlock"] {
         flex-wrap: nowrap !important;
@@ -68,15 +61,13 @@ st.markdown(
         flex: 1 1 0 !important;
     }
 
-    /* Streamlit 버전에 따른 호환용 */
     div[data-testid="column"] {
         min-width: 0 !important;
         flex: 1 1 0 !important;
     }
 
-    /* Metric 디자인 */
     div[data-testid="stMetric"] {
-        background: rgba(128, 128, 128, 0.08);
+        background: rgba(128,128,128,0.08);
         padding: 5px 3px;
         border-radius: 8px;
         text-align: center;
@@ -98,7 +89,6 @@ st.markdown(
         font-size: 0.7rem !important;
     }
 
-    /* 버튼 */
     .stButton > button {
         height: 45px;
         font-size: 1rem;
@@ -107,18 +97,15 @@ st.markdown(
         padding: 0.2rem !important;
     }
 
-    /* Select box compact */
     div[data-baseweb="select"] {
         min-height: 40px;
         font-size: 0.9rem;
     }
 
-    /* Alert compact */
     div[data-testid="stAlert"] {
         padding: 0.45rem 0.6rem;
     }
 
-    /* Streamlit 메뉴 숨기기 */
     #MainMenu {
         visibility: hidden;
     }
@@ -138,7 +125,7 @@ st.markdown(
 
 
 # ============================================================
-# RSI 계산
+# RSI
 # ============================================================
 
 def calculate_rsi(series, period=14):
@@ -162,13 +149,11 @@ def calculate_rsi(series, period=14):
 
     rs = avg_gain / avg_loss.replace(0, np.nan)
 
-    rsi = 100 - (100 / (1 + rs))
-
-    return rsi
+    return 100 - (100 / (1 + rs))
 
 
 # ============================================================
-# Binance 데이터 다운로드
+# Binance 데이터
 # ============================================================
 
 @st.cache_data(ttl=600)
@@ -182,7 +167,6 @@ def download_data(symbol, timeframe):
 
     interval = interval_map[timeframe]
 
-    # Binance 공개 Market Data 전용 주소
     url = (
         "https://data-api.binance.vision"
         "/api/v3/klines"
@@ -224,16 +208,13 @@ def download_data(symbol, timeframe):
         columns=columns,
     )
 
-    numeric_columns = [
+    for column in [
         "Open",
         "High",
         "Low",
         "Close",
         "Volume",
-    ]
-
-    for column in numeric_columns:
-
+    ]:
         df[column] = pd.to_numeric(
             df[column],
             errors="coerce",
@@ -258,12 +239,10 @@ def download_data(symbol, timeframe):
         ]
     ].dropna()
 
-    # RSI
     df["RSI"] = calculate_rsi(
         df["Close"]
     )
 
-    # EMA
     df["EMA20"] = (
         df["Close"]
         .ewm(
@@ -293,8 +272,6 @@ def choose_question_index(df):
 
     minimum = LOOKBACK
 
-    # 다음 봉 하나가 필요하므로
-    # 마지막 봉은 문제 시작점으로 사용하지 않음
     maximum = len(df) - 2
 
     if maximum <= minimum:
@@ -421,8 +398,47 @@ def make_quiz_chart(past):
         col=1,
     )
 
+    # 처음에는 최근 50봉만 보여줌
+    start_visible = (
+        len(past)
+        - INITIAL_VISIBLE
+        + 0.5
+    )
+
+    end_visible = (
+        len(past)
+        + 0.5
+    )
+
+    fig.update_xaxes(
+        range=[
+            start_visible,
+            end_visible,
+        ],
+        row=1,
+        col=1,
+    )
+
+    fig.update_xaxes(
+        range=[
+            start_visible,
+            end_visible,
+        ],
+        row=2,
+        col=1,
+    )
+
+    fig.update_xaxes(
+        range=[
+            start_visible,
+            end_visible,
+        ],
+        row=3,
+        col=1,
+    )
+
     fig.update_layout(
-        height=345,
+        height=350,
         margin=dict(
             l=0,
             r=0,
@@ -431,7 +447,12 @@ def make_quiz_chart(past):
         ),
         xaxis_rangeslider_visible=False,
         showlegend=False,
+
+        # 기본 동작은 이동
         dragmode="pan",
+
+        # 사용자 확대/이동 유지
+        uirevision="chart",
     )
 
     return fig
@@ -476,7 +497,6 @@ def make_result_chart(
         )
     )
 
-    # 마지막 공개된 봉 강조
     fig.add_vrect(
         x0=len(past) + 0.5,
         x1=len(past) + 1.5,
@@ -484,8 +504,27 @@ def make_result_chart(
         line_width=0,
     )
 
+    # 최근 50봉 + 공개된 다음 봉
+    start_visible = (
+        len(combined)
+        - INITIAL_VISIBLE
+        + 0.5
+    )
+
+    end_visible = (
+        len(combined)
+        + 0.5
+    )
+
+    fig.update_xaxes(
+        range=[
+            start_visible,
+            end_visible,
+        ]
+    )
+
     fig.update_layout(
-        height=270,
+        height=285,
         margin=dict(
             l=0,
             r=0,
@@ -495,13 +534,14 @@ def make_result_chart(
         xaxis_rangeslider_visible=False,
         showlegend=False,
         dragmode="pan",
+        uirevision="result_chart",
     )
 
     return fig
 
 
 # ============================================================
-# 다음 봉 판정
+# 정답 판정
 # ============================================================
 
 def evaluate_next_candle(
@@ -619,7 +659,7 @@ with top2:
 
 
 # ============================================================
-# 정답률 계산
+# 정답률
 # ============================================================
 
 if st.session_state.total > 0:
@@ -637,7 +677,6 @@ else:
 
 # ============================================================
 # 문제 / 정답 / 정답률
-# 아이폰에서도 1행 고정
 # ============================================================
 
 score1, score2, score3 = st.columns(
@@ -704,7 +743,7 @@ if len(df) < LOOKBACK + 10:
 
 
 # ============================================================
-# 코인 / 시간봉 변경 감지
+# 종목 / 시간봉 변경
 # ============================================================
 
 signature = (
@@ -730,10 +769,6 @@ if (
 
     new_question(df)
 
-
-# ============================================================
-# 최초 문제
-# ============================================================
 
 if (
     st.session_state.question_index
@@ -763,7 +798,15 @@ if not st.session_state.revealed:
         use_container_width=True,
         config={
             "displayModeBar": False,
+
+            # 확대/축소
             "scrollZoom": True,
+
+            # 더블탭 시 초기 상태
+            "doubleClick": "reset",
+
+            # 터치 편의
+            "responsive": True,
         },
     )
 
@@ -777,11 +820,7 @@ if not st.session_state.revealed:
     )
 
 
-    # ========================================================
     # 현재 가격 / RSI
-    # 아이폰에서도 1행 고정
-    # ========================================================
-
     info1, info2 = st.columns(
         [1.5, 1]
     )
@@ -801,10 +840,7 @@ if not st.session_state.revealed:
         )
 
 
-    # ========================================================
     # 상승 / 하락
-    # ========================================================
-
     up_col, down_col = st.columns(2)
 
 
@@ -856,7 +892,6 @@ else:
     )
 
 
-    # 같은 문제를 여러 번 점수 반영하지 않도록 함
     if score_key not in st.session_state:
 
         st.session_state[
@@ -864,7 +899,6 @@ else:
         ] = True
 
 
-        # DOJI는 성적에서 제외
         if result["answer"] != "DOJI":
 
             st.session_state.total += 1
@@ -875,9 +909,7 @@ else:
                 st.session_state.correct += 1
 
 
-    # ========================================================
-    # 정답 메시지
-    # ========================================================
+    # 결과 메시지
 
     if result["answer"] == "DOJI":
 
@@ -898,9 +930,7 @@ else:
         )
 
 
-    # ========================================================
     # 결과 차트
-    # ========================================================
 
     st.plotly_chart(
         make_result_chart(
@@ -911,13 +941,11 @@ else:
         config={
             "displayModeBar": False,
             "scrollZoom": True,
+            "doubleClick": "reset",
+            "responsive": True,
         },
     )
 
-
-    # ========================================================
-    # 결과 텍스트
-    # ========================================================
 
     if result["answer"] == "UP":
 
@@ -932,11 +960,7 @@ else:
         result_text = "➖ DOJI"
 
 
-    # ========================================================
-    # 결과 / Open / Close
-    # 한 줄 고정
-    # ========================================================
-
+    # 결과
     result1, result2, result3 = st.columns(
         [1, 1.2, 1.2]
     )
@@ -967,10 +991,7 @@ else:
         )
 
 
-    # ========================================================
     # 다음 문제
-    # ========================================================
-
     if st.button(
         "➡️ 다음 문제",
         use_container_width=True,
