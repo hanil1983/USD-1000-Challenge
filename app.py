@@ -97,7 +97,7 @@ st.markdown(
        ======================================================== */
 
     .challenge-title {
-        font-size: 1.15rem !important;
+        font-size: 1.3rem !important;
         font-weight: 700 !important;
 
         line-height: 30px;
