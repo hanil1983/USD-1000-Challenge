@@ -1,4 +1,6 @@
+import io
 import random
+import zipfile
 
 import numpy as np
 import pandas as pd
@@ -313,8 +315,236 @@ def format_price(value):
     return f"{value:,.4f}"
 
 
-@st.cache_data(ttl=600)
-def download_data(symbol, timeframe):
+BINANCE_KLINE_COLUMNS = [
+    "OpenTime", "Open", "High", "Low", "Close", "Volume",
+    "CloseTime", "QuoteVolume", "Trades",
+    "TakerBuyBase", "TakerBuyQuote", "Ignore",
+]
+
+
+def _parse_archive_open_time(series):
+    """
+    Binance Vision Spot archive는 2025년 이후 microseconds timestamp가
+    포함될 수 있어 값의 크기로 ms/us를 자동 판별합니다.
+    """
+    values = pd.to_numeric(series, errors="coerce")
+    valid = values.dropna()
+
+    if valid.empty:
+        return pd.to_datetime(values, errors="coerce")
+
+    typical = float(valid.median())
+    unit = "us" if typical >= 1e14 else "ms"
+
+    return pd.to_datetime(
+        values,
+        unit=unit,
+        errors="coerce",
+        utc=True,
+    ).dt.tz_convert(None)
+
+
+def _read_monthly_archive(session, symbol, interval, month):
+    month_str = month.strftime("%Y-%m")
+
+    url = (
+        "https://data.binance.vision/data/spot/monthly/klines/"
+        f"{symbol}/{interval}/{symbol}-{interval}-{month_str}.zip"
+    )
+
+    response = session.get(
+        url,
+        timeout=30,
+    )
+
+    # 상장 전 기간이거나 아직 archive가 생성되지 않은 경우
+    if response.status_code == 404:
+        return None
+
+    response.raise_for_status()
+
+    with zipfile.ZipFile(
+        io.BytesIO(response.content)
+    ) as zf:
+        csv_names = [
+            name
+            for name in zf.namelist()
+            if name.lower().endswith(".csv")
+        ]
+
+        if not csv_names:
+            return None
+
+        with zf.open(csv_names[0]) as csv_file:
+            month_df = pd.read_csv(
+                csv_file,
+                header=None,
+                names=BINANCE_KLINE_COLUMNS,
+            )
+
+    month_df["OpenTime"] = _parse_archive_open_time(
+        month_df["OpenTime"]
+    )
+
+    for col in ["Open", "High", "Low", "Close", "Volume"]:
+        month_df[col] = pd.to_numeric(
+            month_df[col],
+            errors="coerce",
+        )
+
+    month_df = month_df.dropna(
+        subset=[
+            "OpenTime",
+            "Open",
+            "High",
+            "Low",
+            "Close",
+            "Volume",
+        ]
+    )
+
+    month_df = month_df.set_index("OpenTime")
+
+    return month_df[
+        ["Open", "High", "Low", "Close", "Volume"]
+    ]
+
+
+def _download_rest_range(
+    session,
+    symbol,
+    interval,
+    start_time,
+    end_time,
+):
+    """
+    월별 ZIP 이후의 최신 구간을 REST API로 이어 붙입니다.
+    API limit=1000이므로 필요한 경우 자동으로 pagination 합니다.
+    """
+    url = (
+        "https://data-api.binance.vision/api/v3/klines"
+    )
+
+    start_ms = int(
+        pd.Timestamp(start_time).timestamp() * 1000
+    )
+    end_ms = int(
+        pd.Timestamp(end_time).timestamp() * 1000
+    )
+
+    chunks = []
+    cursor = start_ms
+
+    # 비정상 무한 루프 방지
+    for _ in range(500):
+        if cursor > end_ms:
+            break
+
+        response = session.get(
+            url,
+            params={
+                "symbol": symbol,
+                "interval": interval,
+                "startTime": cursor,
+                "endTime": end_ms,
+                "limit": 1000,
+            },
+            timeout=20,
+        )
+        response.raise_for_status()
+
+        rows = response.json()
+
+        if not rows:
+            break
+
+        part = pd.DataFrame(
+            rows,
+            columns=BINANCE_KLINE_COLUMNS,
+        )
+
+        for col in [
+            "Open",
+            "High",
+            "Low",
+            "Close",
+            "Volume",
+        ]:
+            part[col] = pd.to_numeric(
+                part[col],
+                errors="coerce",
+            )
+
+        part["OpenTime"] = pd.to_datetime(
+            pd.to_numeric(
+                part["OpenTime"],
+                errors="coerce",
+            ),
+            unit="ms",
+            errors="coerce",
+            utc=True,
+        ).dt.tz_convert(None)
+
+        part = part.dropna(
+            subset=[
+                "OpenTime",
+                "Open",
+                "High",
+                "Low",
+                "Close",
+                "Volume",
+            ]
+        )
+
+        part = part.set_index("OpenTime")
+
+        chunks.append(
+            part[
+                [
+                    "Open",
+                    "High",
+                    "Low",
+                    "Close",
+                    "Volume",
+                ]
+            ]
+        )
+
+        last_open_ms = int(rows[-1][0])
+
+        if last_open_ms < cursor:
+            break
+
+        cursor = last_open_ms + 1
+
+        if len(rows) < 1000:
+            break
+
+    if not chunks:
+        return pd.DataFrame(
+            columns=[
+                "Open",
+                "High",
+                "Low",
+                "Close",
+                "Volume",
+            ]
+        )
+
+    return pd.concat(chunks)
+
+
+@st.cache_data(
+    ttl=86400,
+    show_spinner=False,
+)
+def download_data(symbol, timeframe, years=5):
+    """
+    선택 종목/시간봉의 최근 약 5년 Binance Spot Kline을 가져옵니다.
+
+    완료된 월은 Binance Vision 월별 ZIP을 사용하고,
+    archive 이후 최신 구간은 REST API로 보충합니다.
+    """
     interval_map = {
         "15분": "15m",
         "1시간": "1h",
@@ -322,48 +552,143 @@ def download_data(symbol, timeframe):
         "일봉": "1d",
     }
 
-    url = "https://data-api.binance.vision/api/v3/klines"
-
-    params = {
-        "symbol": symbol,
-        "interval": interval_map[timeframe],
-        "limit": 1000,
+    interval_delta_map = {
+        "15분": pd.Timedelta(minutes=15),
+        "1시간": pd.Timedelta(hours=1),
+        "4시간": pd.Timedelta(hours=4),
+        "일봉": pd.Timedelta(days=1),
     }
 
-    response = requests.get(
-        url,
-        params=params,
-        timeout=10,
-    )
-    response.raise_for_status()
+    interval = interval_map[timeframe]
+    interval_delta = interval_delta_map[timeframe]
 
-    columns = [
-        "OpenTime", "Open", "High", "Low", "Close", "Volume",
-        "CloseTime", "QuoteVolume", "Trades",
-        "TakerBuyBase", "TakerBuyQuote", "Ignore",
-    ]
+    now = pd.Timestamp.now(tz="UTC").tz_localize(None)
+    start_cutoff = now - pd.DateOffset(years=years)
 
-    df = pd.DataFrame(
-        response.json(),
-        columns=columns,
+    start_month = (
+        start_cutoff
+        .to_period("M")
+        .to_timestamp()
     )
 
-    for col in ["Open", "High", "Low", "Close", "Volume"]:
-        df[col] = pd.to_numeric(
-            df[col],
-            errors="coerce",
+    current_month = (
+        now
+        .to_period("M")
+        .to_timestamp()
+    )
+
+    last_archive_month = (
+        current_month
+        - pd.DateOffset(months=1)
+    )
+
+    session = requests.Session()
+    session.headers.update(
+        {
+            "User-Agent":
+                "Mozilla/5.0 Streamlit Trading Replay"
+        }
+    )
+
+    archive_chunks = []
+
+    if start_month <= last_archive_month:
+        months = pd.date_range(
+            start=start_month,
+            end=last_archive_month,
+            freq="MS",
         )
 
-    df["OpenTime"] = pd.to_datetime(
-        df["OpenTime"],
-        unit="ms",
+        for month in months:
+            month_df = _read_monthly_archive(
+                session,
+                symbol,
+                interval,
+                month,
+            )
+
+            if (
+                month_df is not None
+                and
+                not month_df.empty
+            ):
+                archive_chunks.append(month_df)
+
+    if archive_chunks:
+        historical_df = pd.concat(
+            archive_chunks
+        ).sort_index()
+
+        latest_archive_time = (
+            historical_df.index.max()
+        )
+
+        rest_start = (
+            latest_archive_time
+            + interval_delta
+        )
+    else:
+        # archive가 없는 예외 상황에서는 REST로 가능한 범위를 이어서 요청
+        historical_df = pd.DataFrame(
+            columns=[
+                "Open",
+                "High",
+                "Low",
+                "Close",
+                "Volume",
+            ]
+        )
+        rest_start = start_cutoff
+
+    recent_df = _download_rest_range(
+        session,
+        symbol,
+        interval,
+        rest_start,
+        now,
     )
 
-    df = df.set_index("OpenTime")
+    pieces = [
+        frame
+        for frame in [
+            historical_df,
+            recent_df,
+        ]
+        if not frame.empty
+    ]
 
-    return df[
+    if not pieces:
+        raise ValueError(
+            "Binance에서 데이터를 가져오지 못했습니다."
+        )
+
+    df = pd.concat(pieces)
+
+    df = (
+        df[
+            ~df.index.duplicated(
+                keep="last"
+            )
+        ]
+        .sort_index()
+    )
+
+    df = df[
+        (df.index >= start_cutoff)
+        &
+        (df.index <= now)
+    ]
+
+    df = df[
         ["Open", "High", "Low", "Close", "Volume"]
     ].dropna()
+
+    if len(df) <= LOOKBACK + MIN_FUTURE_STEPS:
+        raise ValueError(
+            "게임을 만들기 위한 과거 데이터가 부족합니다."
+        )
+
+    return df
 
 
 # ============================================================
@@ -883,8 +1208,12 @@ def advance_one_step(df):
     ):
         return
 
-    st.session_state.current_idx += 1
+    # 매도 직후에는 최근 거래 결과를 한 화면만 보여주고,
+    # 다음 봉으로 넘어가면 자동으로 숨깁니다.
+    st.session_state.last_trade = None
     st.session_state.status_message = None
+
+    st.session_state.current_idx += 1
 
     if st.session_state.position_open:
         check_liquidation(df)
@@ -1060,7 +1389,14 @@ with timeframe_col:
 # ============================================================
 
 try:
-    df = download_data(symbol, timeframe)
+    with st.spinner(
+        "Binance 최근 5년 데이터를 불러오는 중..."
+    ):
+        df = download_data(
+            symbol,
+            timeframe,
+            years=5,
+        )
 
 except Exception as e:
     st.error(
