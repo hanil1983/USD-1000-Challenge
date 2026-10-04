@@ -234,6 +234,15 @@ st.markdown(
         margin-bottom: 0 !important;
     }
 
+    .trade-period {
+        width: 100%;
+        text-align: center;
+        font-size: 0.70rem;
+        font-weight: 500;
+        margin: 2px 0;
+        opacity: 0.75;
+    }
+
     .bottom-safe-area {
         height: calc(42px + env(safe-area-inset-bottom));
     }
@@ -1283,8 +1292,19 @@ if st.session_state.status_message:
 if st.session_state.last_trade:
     trade = st.session_state.last_trade
 
-    # 매도/청산 결과 알림은 위의 status_message에서 한 번만 표시합니다.
-    # 중복되던 "거래 종료" 메시지는 제거했습니다.
+    if trade["reason"] == "LIQUIDATION":
+        st.error(
+            f"💥 청산 · ${trade['pnl']:+,.2f}"
+        )
+    elif trade["pnl"] >= 0:
+        st.success(
+            f"✅ 거래 종료 · ${trade['pnl']:+,.2f}"
+        )
+    else:
+        st.error(
+            f"❌ 거래 종료 · ${trade['pnl']:+,.2f}"
+        )
+
     t1, t2, t3, t4 = st.columns(4)
 
     with t1:
@@ -1315,6 +1335,16 @@ if st.session_state.last_trade:
             f"{trade['holding_days']}일",
         )
 
+    st.markdown(
+        f"""
+        <div class="trade-period">
+            실제 기간: {trade['entry_date']} → {trade['exit_date']}
+            · 레버리지 {trade['leverage']}x
+            · 투자금 ${trade['margin']:,.2f}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 # ============================================================
@@ -1328,21 +1358,9 @@ scenario_finished = (
 
 
 if st.session_state.position_open:
-    # 미보유 상태의 [매수 | 다음날]과 같은 순서로
-    # 보유 상태도 [매도 | 다음날] 순서로 통일합니다.
     action1, action2 = st.columns(2)
 
     with action1:
-        with st.container(key="sell_area"):
-            if st.button(
-                "🔴 매도",
-                use_container_width=True,
-                key="sell_position",
-            ):
-                close_position(df)
-                st.rerun()
-
-    with action2:
         with st.container(key="next_day_area"):
             if st.button(
                 "➡️ 다음날",
@@ -1351,6 +1369,16 @@ if st.session_state.position_open:
                 key="next_day_holding",
             ):
                 advance_one_day(df)
+                st.rerun()
+
+    with action2:
+        with st.container(key="sell_area"):
+            if st.button(
+                "🔴 매도",
+                use_container_width=True,
+                key="sell_position",
+            ):
+                close_position(df)
                 st.rerun()
 
 
