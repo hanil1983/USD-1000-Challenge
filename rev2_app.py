@@ -21,7 +21,7 @@ st.set_page_config(
 
 INITIAL_CAPITAL = 1000.0
 LOOKBACK = 100
-MIN_FUTURE_DAYS = 180
+MIN_FUTURE_STEPS = 180
 BANKRUPT_THRESHOLD = 0.01
 
 
@@ -152,8 +152,8 @@ st.markdown(
     }
 
     div[data-testid="stNumberInput"] input {
-        height: 35px !important;
-        min-height: 35px !important;
+        height: 36px !important;
+        min-height: 36px !important;
         text-align: center !important;
         font-size: var(--value-size) !important;
         font-weight: 600 !important;
@@ -161,13 +161,39 @@ st.markdown(
         padding-right: 1px !important;
     }
 
+    div[data-testid="stNumberInput"] [data-baseweb="input"] {
+        height: 36px !important;
+        min-height: 36px !important;
+    }
+
     div[data-baseweb="select"],
     div[data-baseweb="select"] > div {
-        min-height: 35px !important;
-        height: 35px !important;
+        min-height: 36px !important;
+        height: 36px !important;
         font-size: var(--value-size) !important;
         font-weight: 600 !important;
         text-align: center !important;
+    }
+
+    /* 투자금 / 레버리지 라벨 가운데 정렬 */
+    .st-key-trade_controls label[data-testid="stWidgetLabel"] {
+        display: flex !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
+    .st-key-trade_controls label[data-testid="stWidgetLabel"] p {
+        width: 100% !important;
+        text-align: center !important;
+    }
+
+    /* 레버리지 선택값도 칸 가운데로 */
+    .st-key-trade_controls div[data-baseweb="select"] > div > div:first-child {
+        flex: 1 1 auto !important;
+        display: flex !important;
+        justify-content: center !important;
+        text-align: center !important;
+        min-width: 0 !important;
     }
 
     div[data-testid="stSlider"] {
@@ -186,15 +212,17 @@ st.markdown(
 
     .st-key-pct_minus_wrap,
     .st-key-pct_plus_wrap {
-        padding-top: 18px !important;
+        padding-top: 0 !important;
+        margin: 0 !important;
     }
 
     .st-key-pct_minus_wrap button,
     .st-key-pct_plus_wrap button {
-        height: 35px !important;
-        min-height: 35px !important;
+        height: 36px !important;
+        min-height: 36px !important;
         font-size: 0.75rem !important;
         padding: 0 !important;
+        margin: 0 !important;
     }
 
     .st-key-buy_area button {
@@ -264,15 +292,27 @@ def format_price(value):
 
 
 @st.cache_data(ttl=600)
-def download_data(symbol):
+def download_data(symbol, timeframe):
+    interval_map = {
+        "15분": "15m",
+        "1시간": "1h",
+        "4시간": "4h",
+        "일봉": "1d",
+    }
+
     url = "https://data-api.binance.vision/api/v3/klines"
+
     params = {
         "symbol": symbol,
-        "interval": "1d",
+        "interval": interval_map[timeframe],
         "limit": 1000,
     }
 
-    response = requests.get(url, params=params, timeout=10)
+    response = requests.get(
+        url,
+        params=params,
+        timeout=10,
+    )
     response.raise_for_status()
 
     columns = [
@@ -281,15 +321,27 @@ def download_data(symbol):
         "TakerBuyBase", "TakerBuyQuote", "Ignore",
     ]
 
-    df = pd.DataFrame(response.json(), columns=columns)
+    df = pd.DataFrame(
+        response.json(),
+        columns=columns,
+    )
 
     for col in ["Open", "High", "Low", "Close", "Volume"]:
-        df[col] = pd.to_numeric(df[col], errors="coerce")
+        df[col] = pd.to_numeric(
+            df[col],
+            errors="coerce",
+        )
 
-    df["OpenTime"] = pd.to_datetime(df["OpenTime"], unit="ms")
+    df["OpenTime"] = pd.to_datetime(
+        df["OpenTime"],
+        unit="ms",
+    )
+
     df = df.set_index("OpenTime")
 
-    return df[["Open", "High", "Low", "Close", "Volume"]].dropna()
+    return df[
+        ["Open", "High", "Low", "Close", "Volume"]
+    ].dropna()
 
 
 # ============================================================
@@ -362,12 +414,34 @@ def total_equity(df):
     )
 
 
-def current_day_number():
+def current_step_number():
     return (
         st.session_state.current_idx
         - st.session_state.scenario_start_idx
         + 1
     )
+
+
+def next_step_label(timeframe):
+    labels = {
+        "15분": "➡️ 다음 15분",
+        "1시간": "➡️ 다음 1시간",
+        "4시간": "➡️ 다음 4시간",
+        "일봉": "➡️ 다음날",
+    }
+    return labels[timeframe]
+
+
+def holding_period_text(steps, timeframe):
+    if timeframe == "일봉":
+        return f"{steps}일"
+
+    unit_map = {
+        "15분": "15분봉",
+        "1시간": "1시간봉",
+        "4시간": "4시간봉",
+    }
+    return f"{steps}{unit_map[timeframe]}"
 
 
 def win_rate():
@@ -517,7 +591,7 @@ def sync_leverage(widget_key):
 
 def choose_scenario_start(df):
     min_idx = LOOKBACK
-    max_idx = len(df) - MIN_FUTURE_DAYS - 1
+    max_idx = len(df) - MIN_FUTURE_STEPS - 1
 
     if max_idx <= min_idx:
         max_idx = len(df) - 30
@@ -545,7 +619,7 @@ def start_new_scenario(df, keep_bank=True):
     st.session_state.current_idx = start_idx
 
     st.session_state.scenario_end_idx = min(
-        start_idx + MIN_FUTURE_DAYS,
+        start_idx + MIN_FUTURE_STEPS,
         len(df) - 1,
     )
 
@@ -654,7 +728,7 @@ def close_position(df, reason="SELL", exit_price=None):
         exit_price / entry_price - 1
     ) * 100
 
-    holding_days = (
+    holding_steps = (
         st.session_state.current_idx
         - st.session_state.entry_idx
     )
@@ -678,7 +752,7 @@ def close_position(df, reason="SELL", exit_price=None):
         "exit_price": exit_price,
         "price_return": price_return,
         "pnl": pnl,
-        "holding_days": holding_days,
+        "holding_steps": holding_steps,
         "leverage": leverage,
         "margin": margin,
         "entry_date": str(entry_date),
@@ -728,7 +802,7 @@ def check_liquidation(df):
     return False
 
 
-def advance_one_day(df):
+def advance_one_step(df):
     if (
         st.session_state.current_idx
         >= st.session_state.scenario_end_idx
@@ -870,17 +944,40 @@ with reset_col:
         )
 
 
-symbol = st.selectbox(
-    "코인",
-    [
-        "BTCUSDT",
-        "ETHUSDT",
-        "SOLUSDT",
-        "XRPUSDT",
-        "BNBUSDT",
-    ],
-    label_visibility="collapsed",
+market_col, timeframe_col = st.columns(
+    [1.35, 1.0],
+    gap="small",
 )
+
+with market_col:
+    symbol = st.selectbox(
+        "코인",
+        [
+            "BTCUSDT",
+            "ETHUSDT",
+            "SOLUSDT",
+            "XRPUSDT",
+            "BNBUSDT",
+        ],
+        label_visibility="collapsed",
+        disabled=st.session_state.position_open,
+        key="market_symbol",
+    )
+
+with timeframe_col:
+    timeframe = st.selectbox(
+        "시간봉",
+        [
+            "15분",
+            "1시간",
+            "4시간",
+            "일봉",
+        ],
+        index=3,
+        label_visibility="collapsed",
+        disabled=st.session_state.position_open,
+        key="market_timeframe",
+    )
 
 
 # ============================================================
@@ -888,7 +985,7 @@ symbol = st.selectbox(
 # ============================================================
 
 try:
-    df = download_data(symbol)
+    df = download_data(symbol, timeframe)
 
 except Exception as e:
     st.error(
@@ -897,19 +994,25 @@ except Exception as e:
     st.stop()
 
 
-signature = symbol
+signature = f"{symbol}_{timeframe}"
 
 if "scenario_signature" not in st.session_state:
     st.session_state.scenario_signature = signature
 
 if st.session_state.scenario_signature != signature:
     st.session_state.scenario_signature = signature
-    reset_game_state()
+
+    # 종목/시간봉 변경은 새로운 차트 시나리오만 시작합니다.
+    # 현금, 누적손익, 거래 수, 승률, 레버리지 설정은 유지됩니다.
+    start_new_scenario(
+        df,
+        keep_bank=True,
+    )
 
 if st.session_state.current_idx is None:
     start_new_scenario(
         df,
-        keep_bank=False,
+        keep_bank=True,
     )
 
 
@@ -967,9 +1070,15 @@ with m4:
 p1, p2, p3 = st.columns(3)
 
 with p1:
+    progress_value = (
+        f"Day {current_step_number()}"
+        if timeframe == "일봉"
+        else f"{current_step_number()}봉"
+    )
+
     st.metric(
-        "Day",
-        current_day_number(),
+        "진행",
+        progress_value,
     )
 
 with p2:
@@ -1037,7 +1146,9 @@ if not st.session_state.position_open:
 
     with st.container(key="trade_controls"):
         c1, c2, c3, c4, c5 = st.columns(
-            [0.58, 2.90, 0.58, 1.30, 0.68]
+            [0.62, 3.20, 0.62, 1.18, 0.62],
+            gap="small",
+            vertical_alignment="bottom",
         )
 
         with c1:
@@ -1260,9 +1371,15 @@ with info1:
     )
 
 with info2:
+    current_step_text = (
+        f"Day {current_step_number()}"
+        if timeframe == "일봉"
+        else f"{current_step_number()}봉"
+    )
+
     st.metric(
         "현재 시점",
-        f"Day {current_day_number()}",
+        current_step_text,
     )
 
 
@@ -1311,8 +1428,11 @@ if st.session_state.last_trade:
 
     with t4:
         st.metric(
-            "보유일",
-            f"{trade['holding_days']}일",
+            "보유",
+            holding_period_text(
+                trade["holding_steps"],
+                timeframe,
+            ),
         )
 
 
@@ -1345,19 +1465,19 @@ if st.session_state.position_open:
     with action2:
         with st.container(key="next_day_area"):
             if st.button(
-                "➡️ 다음날",
+                next_step_label(timeframe),
                 use_container_width=True,
                 disabled=scenario_finished,
                 key="next_day_holding",
             ):
-                advance_one_day(df)
+                advance_one_step(df)
                 st.rerun()
 
 
 else:
     if scenario_finished:
         st.warning(
-            "이 시나리오의 마지막 날입니다."
+            "이 시나리오의 마지막 봉입니다."
         )
 
         if st.button(
@@ -1392,11 +1512,11 @@ else:
         with action2:
             with st.container(key="next_day_area"):
                 if st.button(
-                    "➡️ 다음날",
+                    next_step_label(timeframe),
                     use_container_width=True,
                     key="next_day_flat",
                 ):
-                    advance_one_day(df)
+                    advance_one_step(df)
                     st.rerun()
 
 
