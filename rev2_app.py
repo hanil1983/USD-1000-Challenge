@@ -107,15 +107,33 @@ st.markdown(
         border-radius: 7px;
     }
 
-    div[data-testid="stMetricLabel"],
-    div[data-testid="stMetricLabel"] p {
+    div[data-testid="stMetricLabel"] {
         width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
         justify-content: center !important;
         text-align: center !important;
         font-size: var(--label-size) !important;
         font-weight: 500 !important;
         white-space: nowrap !important;
         margin: 0 !important;
+    }
+
+    div[data-testid="stMetricLabel"] > div {
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
+    div[data-testid="stMetricLabel"] p {
+        width: 100% !important;
+        text-align: center !important;
+        font-size: var(--label-size) !important;
+        font-weight: 500 !important;
+        white-space: nowrap !important;
+        margin: 0 auto !important;
     }
 
     div[data-testid="stMetricValue"] {
@@ -141,14 +159,32 @@ st.markdown(
         padding: 0.02rem 0.08rem !important;
     }
 
-    label[data-testid="stWidgetLabel"],
+    label[data-testid="stWidgetLabel"] {
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        font-size: var(--label-size) !important;
+        font-weight: 500 !important;
+        white-space: nowrap !important;
+        margin: 0 !important;
+    }
+
+    label[data-testid="stWidgetLabel"] > div {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
     label[data-testid="stWidgetLabel"] p {
         width: 100% !important;
         text-align: center !important;
         font-size: var(--label-size) !important;
         font-weight: 500 !important;
         white-space: nowrap !important;
-        margin: 0 !important;
+        margin: 0 auto !important;
     }
 
     div[data-testid="stNumberInput"] input {
@@ -374,6 +410,9 @@ defaults = {
     "trades": 0,
     "wins": 0,
 
+    # 실현 손익 기록. 종목/시간봉 변경 시 유지되고 초기화 버튼에서만 리셋됩니다.
+    "closed_pnls": [],
+
     "last_trade": None,
     "status_message": None,
 }
@@ -453,6 +492,52 @@ def win_rate():
         / st.session_state.trades
         * 100
     )
+
+
+def payoff_ratio(df):
+    """
+    손익비 = 평균 이익 / 평균 손실.
+
+    완료된 거래의 실현손익에 더해, 포지션 보유 중에는 현재 봉의
+    미실현손익을 임시로 포함합니다. 따라서 다음 봉으로 진행할 때마다
+    손익비도 함께 갱신됩니다.
+    """
+    outcomes = list(st.session_state.closed_pnls)
+
+    if st.session_state.position_open:
+        current_unreal = unrealized_pnl(df)
+
+        if abs(current_unreal) > 1e-9:
+            outcomes.append(current_unreal)
+
+    profits = [
+        value
+        for value in outcomes
+        if value > 1e-9
+    ]
+
+    losses = [
+        abs(value)
+        for value in outcomes
+        if value < -1e-9
+    ]
+
+    if not profits and not losses:
+        return "—"
+
+    if profits and not losses:
+        return "∞"
+
+    if losses and not profits:
+        return "0.00"
+
+    average_profit = float(np.mean(profits))
+    average_loss = float(np.mean(losses))
+
+    if average_loss <= 1e-12:
+        return "∞"
+
+    return f"{average_profit / average_loss:.2f}"
 
 
 def liquidation_price():
@@ -607,6 +692,7 @@ def start_new_scenario(df, keep_bank=True):
         st.session_state.cash = INITIAL_CAPITAL
         st.session_state.trades = 0
         st.session_state.wins = 0
+        st.session_state.closed_pnls = []
 
         st.session_state.position_pct = 25
         st.session_state.investment_amount = 250.0
@@ -655,6 +741,7 @@ def reset_game_state():
 
     st.session_state.trades = 0
     st.session_state.wins = 0
+    st.session_state.closed_pnls = []
 
     st.session_state.last_trade = None
     st.session_state.status_message = None
@@ -734,6 +821,7 @@ def close_position(df, reason="SELL", exit_price=None):
     )
 
     st.session_state.trades += 1
+    st.session_state.closed_pnls.append(float(pnl))
 
     if pnl > 0:
         st.session_state.wins += 1
@@ -1017,7 +1105,7 @@ if st.session_state.current_idx is None:
 
 
 # ============================================================
-# 자산 / 진행도
+# 자산 / 매매 성과
 # ============================================================
 
 equity = total_equity(df)
@@ -1070,15 +1158,9 @@ with m4:
 p1, p2, p3 = st.columns(3)
 
 with p1:
-    progress_value = (
-        f"Day {current_step_number()}"
-        if timeframe == "일봉"
-        else f"{current_step_number()}봉"
-    )
-
     st.metric(
-        "진행",
-        progress_value,
+        "손익비",
+        payoff_ratio(df),
     )
 
 with p2:
