@@ -62,7 +62,6 @@ st.markdown(
     div[data-testid="stColumn"],
     div[data-testid="column"] {
         min-width: 0 !important;
-        flex: 1 1 0 !important;
     }
 
     h3 {
@@ -79,6 +78,8 @@ st.markdown(
         display: flex !important;
         justify-content: flex-end !important;
         align-items: center !important;
+        margin-left: auto !important;
+        padding-right: 0 !important;
     }
 
     .st-key-reset_top button {
@@ -159,33 +160,6 @@ st.markdown(
         padding: 0.02rem 0.08rem !important;
     }
 
-    label[data-testid="stWidgetLabel"] {
-        width: 100% !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        text-align: center !important;
-        font-size: var(--label-size) !important;
-        font-weight: 500 !important;
-        white-space: nowrap !important;
-        margin: 0 !important;
-    }
-
-    label[data-testid="stWidgetLabel"] > div {
-        width: 100% !important;
-        display: flex !important;
-        justify-content: center !important;
-        text-align: center !important;
-    }
-
-    label[data-testid="stWidgetLabel"] p {
-        width: 100% !important;
-        text-align: center !important;
-        font-size: var(--label-size) !important;
-        font-weight: 500 !important;
-        white-space: nowrap !important;
-        margin: 0 auto !important;
-    }
 
     div[data-testid="stNumberInput"] input {
         height: 36px !important;
@@ -213,14 +187,26 @@ st.markdown(
 
     /* 투자금 / 레버리지 라벨 가운데 정렬 */
     .st-key-trade_controls label[data-testid="stWidgetLabel"] {
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        font-size: var(--label-size) !important;
+        font-weight: 500 !important;
+        white-space: nowrap !important;
+        margin: 0 !important;
+    }
+
+    .st-key-trade_controls label[data-testid="stWidgetLabel"] > div,
+    .st-key-trade_controls label[data-testid="stWidgetLabel"] p {
+        width: 100% !important;
         display: flex !important;
         justify-content: center !important;
         text-align: center !important;
-    }
-
-    .st-key-trade_controls label[data-testid="stWidgetLabel"] p {
-        width: 100% !important;
-        text-align: center !important;
+        font-size: var(--label-size) !important;
+        white-space: nowrap !important;
+        margin: 0 auto !important;
     }
 
     /* 레버리지 선택값도 칸 가운데로 */
@@ -1014,8 +1000,9 @@ def make_chart(df):
 # ============================================================
 
 title_col, reset_col = st.columns(
-    [4.8, 1.2],
+    [7.0, 1.0],
     gap="small",
+    vertical_alignment="center",
 )
 
 with title_col:
